@@ -50,10 +50,10 @@ export async function GET(request: Request) {
         `"${(l.message || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`
     ]);
 
-    // Montando a String Bruta do CSV compatível com MS Excel
+    // Montando a String Bruta do CSV compatível com MS Excel Localizado BR
     const csvContent = [
-        headers.join(","),
-        ...rows.map(r => r.join(","))
+        headers.join(";"),
+        ...rows.map(r => r.join(";"))
     ].join("\n");
 
     // Adicionado BOM (Byte Order Mark) para compatibilidade perfeita com Acentuação UTF-8 no MS Excel

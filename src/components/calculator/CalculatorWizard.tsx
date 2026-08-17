@@ -51,7 +51,7 @@ const MotionWrapper = ({ children, keyStr }: { children: React.ReactNode, keyStr
 );
 
 export function CalculatorWizard() {
-    const { step, answers, setAnswer, nextStep, prevStep } = useCalculatorStore();
+    const { step, answers, setAnswer, nextStep, prevStep, reset } = useCalculatorStore();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorLine, setErrorLine] = useState("");
     const totalSteps = 8; // Steps 1-5 choices, 6 text, 7 lead, 8 result
@@ -268,6 +268,11 @@ export function CalculatorWizard() {
                                 </div>
 
                                 <div className="space-y-2">
+                                    <label className="text-xs text-white/50 uppercase tracking-widest pl-2">WhatsApp / Telefone *</label>
+                                    <input required type="tel" value={answers.leadPhone || ""} onChange={e => setAnswer("leadPhone", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:ring-[var(--color-primary)] focus:border-transparent outline-none" placeholder="(11) 99999-9999" />
+                                </div>
+
+                                <div className="space-y-2">
                                     <label className="text-xs text-white/50 uppercase tracking-widest pl-2">Empresa (Opcional)</label>
                                     <input value={answers.leadCompany || ""} onChange={e => setAnswer("leadCompany", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:ring-[var(--color-primary)] focus:border-transparent outline-none" placeholder="Turing Machines" />
                                 </div>
@@ -316,9 +321,12 @@ export function CalculatorWizard() {
                                     Isso é uma precisão de nossa Engine baseada em variáveis de complexidade. Nossa engenharia, de fato, entrou em contato com você pelo e-mail fornecido para cravar a Discovery Final.
                                 </p>
 
-                                <Link href="/">
-                                    <Button variant="outline">Voltar à Página Principal</Button>
-                                </Link>
+                                <div className="flex items-center justify-center gap-4">
+                                    <Link href="/">
+                                        <Button variant="outline">Voltar à Página Principal</Button>
+                                    </Link>
+                                    <Button onClick={reset} className="bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/80">Fazer Novo Orçamento</Button>
+                                </div>
                             </div>
                         </MotionWrapper>
                     )}

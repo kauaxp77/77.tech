@@ -9,6 +9,7 @@ export interface CalculatorAnswers {
     challengeDescription: string;
     leadName: string;
     leadEmail: string;
+    leadPhone: string;
     leadCompany: string;
 }
 

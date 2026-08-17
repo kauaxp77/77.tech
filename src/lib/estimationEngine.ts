@@ -75,6 +75,7 @@ Desafio Relatado: ${answers.challengeDescription || "Não detalhado."}
     return {
         name: answers.leadName || "Nome Não Informado",
         email: answers.leadEmail || "email@invalido.com",
+        phone: answers.leadPhone || undefined,
         company: answers.leadCompany || undefined,
         projectType: mappedType,
         message: fullMessage,

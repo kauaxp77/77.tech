@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { KanbanBoard } from '@/components/admin/KanbanBoard'
-import { fetchLeads } from '../actions'
+import { fetchLeads } from '@/app/admin/actions'
 
 export const metadata = {
     title: 'CRM Board | 77xp Admin',

@@ -38,9 +38,14 @@ Criamos diretórios segmentados imitando a Clean Architecture leve que blinda o 
 ### B) Módulo Estratégico "Lead Magnet" (A Calculadora)
 - A Rota `/calculadora` engatilha o Motor de Lógica Complexa desenvolvido com os seguintes pilares: O `CalculatorWizard` orquestra até 8 passos modulares do usuário. Variáveis como Risco e Pressão de Prazo entram no `estimationEngine` (um micro domain abstrato apenas para conta matemática) que retorna Sugestão Arquitetural em BRL. A imutabilidade do store é gerida puramente via Node.js Zustand.
 
-### C) Módulo Editorial (CMS & Failover Tolerante)
-- Nossa `CMSService` (Camada de abstração Headless) busca diretamente usando GROQ nativo contra a Cloud da Sanity, servindo conteúdos pesados como Cases e Blog. 
-- **Innovation Alert (Graceful Degradation):** Para evitar desastres nos fins de semana ou clones problemáticos, a nossa Service detecta se chaves de acesso estão inoperantes. Ela **suprime o erro e transaciona assíncronamente** o conteúdo servindo mock data (local memory object `lib/data.ts`). Ninguém sabe da falha, a UI jamais cai e preserva a receita.
+### C) Módulo Operacional Interno (CRM Kanban & Security Edge)
+- O ecossistema roda um Painel B2B Admin hermético em `/admin`. Ele é rigorosamente envelopado usando **Next.js Middleware Edge** cruzado com validação Server-Side do `@supabase/ssr`. Apenas credenciais autorizadas e validadas contra o banco com meta-dados `role: admin` conseguem contornar as rotas protegidas (Role-Based Access Control).
+- A UI Administrativa opera sob **Row Level Security (RLS)** restrita e utiliza a Engine Mestra do `useOptimistic` State (React 19) e Server Actions. Isso concede fluência irretocável de Zero Latência para mover e classificar os Leads Institucionais nas abas do pipeline sem causar Refetches abusivos na tela.
+
+### D) Módulo Editorial e Motor Headless (Sanity Studio)
+- Fiel à arquitetura do Modular Monolith, acoplamos a central Redatorial do CMS Sanity V3 de forma nativa e física na mesma malha do app (rota `/studio`).
+- A `CMSService` provê uma abstração absoluta: Ela consome dados de Casos e Artigos via GROQ Queries na nuvem Vercel. 
+- **Innovation Alert (Graceful Degradation):** Para evitar desastres perante Datasets Sanity ainda vazios ou ausências de API Keys em servidores locais (clones de novatos), a Service intercepta o perigo silenciosamente na raiz, e recua servindo os arquivos em Mock-ups passivos (`lib/data.ts`). A renderização do layout resiste e não colapsa a face da empresa.
 
 *(Para uma visão mais aprofundada nos Hooks e Funções das APIs, acesse e confira o documento `docs/TECHNICAL_REFERENCE.md`).*
 

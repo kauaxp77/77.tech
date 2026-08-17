@@ -5,7 +5,8 @@ export const metadata = {
     title: 'Autenticação Restrita | 77xp',
 }
 
-export default function LoginPage({ searchParams }: { searchParams: { error?: string } }) {
+export default async function LoginPage(props: { searchParams: Promise<{ error?: string }> }) {
+    const searchParams = await props.searchParams;
     return (
         <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
             {/* Ambient Background */}

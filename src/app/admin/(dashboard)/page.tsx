@@ -1,6 +1,6 @@
 import React from 'react'
 import { createClient } from '@/lib/supabase/server'
-import { Activity, BarChart3, TrendingUp, Users, DollarSign, Target, PieChart, Focus } from 'lucide-react'
+import { Activity, BarChart3, TrendingUp, Users, DollarSign, Target, PieChart, Focus, Download } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -82,9 +82,19 @@ export default async function AdminDashboardPage() {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
             {/* Header */}
-            <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent mb-2">Business Operations</h1>
-                <p className="text-white/50 text-sm">Cockpit Executivo Fase 5: Monitorando Pipeline e Conversão de Receita.</p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent mb-2">Business Operations</h1>
+                    <p className="text-white/50 text-sm">Cockpit Executivo Fase 5: Monitorando Pipeline e Conversão de Receita.</p>
+                </div>
+
+                <a
+                    href="/api/admin/export/csv"
+                    download="77xp_leads.csv"
+                    className="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(16,185,129,0.1)] active:scale-95"
+                >
+                    <Download size={16} /> Exportar Excel CSV
+                </a>
             </div>
 
             {/* Strategic Overview Grid */}
@@ -172,7 +182,7 @@ export default async function AdminDashboardPage() {
                     <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><PieChart size={18} className="text-white/50" /> Origem UTM</h2>
 
                     <div className="space-y-4">
-                        {Object.entries(sources).sort((a, b) => b[1] - a[1]).map(([source, count], index) => {
+                        {(Object.entries(sources) as [string, number][]).sort((a, b) => b[1] - a[1]).map(([source, count], index) => {
                             const percent = Math.round((count / totalLeads) * 100);
                             return (
                                 <div key={source} className="group">

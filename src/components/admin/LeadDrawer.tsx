@@ -72,7 +72,7 @@ export function LeadDrawer({ lead, onClose }: LeadDrawerProps) {
 
                 {/* Scope Dashboard */}
                 <div className="p-6">
-                    <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="grid grid-cols-2 gap-4 mb-6">
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
                             <span className="text-[10px] uppercase tracking-widest text-white/30 block mb-1">Lead Score</span>
                             <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-300">
@@ -85,6 +85,24 @@ export function LeadDrawer({ lead, onClose }: LeadDrawerProps) {
                                 {lead.status !== 'NOVO' ? 'Atendido' : isExpiredSLA ? 'SLA Violado' : 'No Prazo'}
                             </span>
                         </div>
+                    </div>
+
+                    {/* Operational Triggers */}
+                    <div className="flex gap-4 mb-8">
+                        <a
+                            href={`/admin/proposal/${lead.id}`}
+                            target="_blank"
+                            className="flex-1 bg-white text-black font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors shadow-lg"
+                        >
+                            Gerar Proposta PDF
+                        </a>
+                        <a
+                            href={`https://wa.me/${lead.phone?.replace(/\D/g, '') || ''}`}
+                            target="_blank"
+                            className="flex-1 bg-green-500 text-black font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-green-400 transition-colors"
+                        >
+                            WhatsApp Rápido
+                        </a>
                     </div>
 
                     <div className="mb-6">

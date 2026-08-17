@@ -3,6 +3,7 @@ import { EventBus } from "./EventBus";
 // Import Hooks/Dependencies if needed
 import { Resend } from "resend";
 import { LeadNotificationEmail } from "@/emails/LeadNotification";
+import { preQualifyLeadAI } from "@/lib/ai/qualifier";
 
 // -------------------------------------------------------------------------------- //
 // REGISTRO GLOBAL DE AUTOMAÇÕES BASEADAS EM EVENTO                                 //
@@ -12,6 +13,9 @@ import { LeadNotificationEmail } from "@/emails/LeadNotification";
 EventBus.on('lead.created', async (lead) => {
     // Essa lógica estava antes espremida de forma impura dentro do backend
     // Agora é um side-effect assíncrono perfeitamente escalável.
+
+    // -> 0. [SPRINT 7G] Análise Sintagmática Oculta de Leads AI
+    await preQualifyLeadAI(lead);
 
     // 1. Notificação Tradicional (Resend)
     const resendClient = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
@@ -27,9 +31,38 @@ EventBus.on('lead.created', async (lead) => {
     }
 });
 
-// A base do Webhook Discord que usaremos na Sprint 7B já é esperada aqui:
+// Integradora Sever-less robusta de Webhooks para Discord
 EventBus.on('lead.created', async (lead) => {
-    console.log("[EventBus -> Discord] Webhooks serãom despachados por esta Worker futuramente.");
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl) {
+        console.warn("[EventBus -> Discord] DISCORD_WEBHOOK_URL não configurada no painel da Vercel. Pulando disparo.");
+        return;
+    }
+
+    try {
+        await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content: null,
+                embeds: [{
+                    title: `🚀 NOVO LEAD ENTRANDO NO FUNIL PELA ${lead.source || 'ORGÂNICO'}`,
+                    color: 3447003,
+                    fields: [
+                        { name: "👤 Nome / Cliente", value: lead.name, inline: true },
+                        { name: "🏢 Empresa", value: lead.company || "Pessoa Física", inline: true },
+                        { name: "🛠 Escopo", value: lead.project_type || "Geral", inline: false },
+                        { name: "🔥 Inteligência (P)", value: `Prioridade Mapeada: ${lead.priority}`, inline: true }
+                    ],
+                    footer: { text: "Gerado pela 77xp Operations Master Engine" },
+                    timestamp: new Date().toISOString()
+                }]
+            })
+        });
+        console.log("[EventBus -> Discord] Sinal Webhook despachado com alerta sonoro para a equipe.");
+    } catch (err: any) {
+        console.error("Falha ao entregar carga útil para infraestrutura Discord:", err.message);
+    }
 });
 
 // Outro Evento Vital: Atualização de Status

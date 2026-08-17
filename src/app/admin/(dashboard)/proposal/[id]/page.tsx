@@ -3,11 +3,23 @@ import { notFound } from "next/navigation";
 import { CheckCircle2, Calculator, Settings2, Code, ShieldCheck } from "lucide-react";
 import { PrintButton } from "@/components/admin/PrintButton";
 
-export default async function ProposalPage({ params }: { params: { id: string } }) {
-    const supabase = await createClient();
-    const { data: lead, error } = await supabase.from("leads").select("*").eq("id", params.id).single();
+export default async function ProposalPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
 
-    if (error || !lead) return notFound();
+    const supabase = await createClient();
+    const { data: lead, error } = await supabase.from("leads").select("*").eq("id", id).single();
+
+    if (error || !lead) {
+        return (
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-10">
+                <h1 className="text-red-500 text-3xl font-bold mb-4">Falha ao buscar Lead no Banco B2B</h1>
+                <p className="text-white/50 mb-4">ID Solicitado: {id}</p>
+                <div className="bg-red-900/20 text-red-400 p-6 rounded-2xl font-mono text-sm border border-red-500/20 max-w-xl break-words">
+                    {error ? JSON.stringify(error, null, 2) : "Lead não encontrado com este ID (Verifique se não foi deletado)."}
+                </div>
+            </div>
+        );
+    }
 
     // Precificação Oficial (Heurísticas Base 77xp)
     let estimatedCost = 4000;
@@ -35,10 +47,10 @@ export default async function ProposalPage({ params }: { params: { id: string } 
             </div>
 
             {/* A4 Paper Container - 100% Branco Imaculado na Impressão */}
-            <div className="max-w-[210mm] min-h-[297mm] mx-auto bg-white p-[20mm] shadow-2xl relative text-neutral-900 print:shadow-none print:m-0 print:p-[10mm]">
+            <div className="max-w-[210mm] min-h-[297mm] flex flex-col mx-auto bg-white p-[20mm] shadow-2xl text-neutral-900 print:shadow-none print:m-0 print:p-[10mm]">
 
                 {/* Header Timbrado Oficial */}
-                <header className="flex justify-between items-center mb-16 pb-8 border-b-2 border-neutral-100">
+                <header className="flex justify-between items-center mb-16 pb-8 border-b-2 border-neutral-100 shrink-0">
                     <div>
                         <h1 className="text-4xl font-black tracking-tighter text-neutral-900">77XP<span className="text-emerald-500">.TECH</span></h1>
                         <p className="text-neutral-500 font-medium text-sm tracking-widest uppercase mt-1">Software Engenharia & B2B Solutions</p>
@@ -51,7 +63,7 @@ export default async function ProposalPage({ params }: { params: { id: string } 
                     </div>
                 </header>
 
-                <div className="space-y-10">
+                <div className="space-y-10 flex-1">
                     {/* Apresentação Alvo */}
                     <section>
                         <h2 className="uppercase tracking-widest text-xs font-bold text-emerald-600 mb-2 border-l-4 border-emerald-500 pl-3">Apresentado Para</h2>
@@ -111,7 +123,7 @@ export default async function ProposalPage({ params }: { params: { id: string } 
                     </section>
 
                     {/* Investimento Estimado */}
-                    <section className="pt-6">
+                    <section className="pt-6 pb-8">
                         <h2 className="uppercase tracking-widest text-xs font-bold text-emerald-600 mb-4 flex items-center gap-2"><Calculator size={16} /> Estimativa de Investimento C-Level</h2>
 
                         <div className="bg-neutral-900 rounded-3xl p-8 mb-4 shadow-xl">
@@ -133,15 +145,15 @@ export default async function ProposalPage({ params }: { params: { id: string } 
 
                 </div>
 
-                {/* Footer Assinatura e Dados Finais */}
-                <div className="absolute bottom-[20mm] left-[20mm] right-[20mm] flex pt-8 border-t-2 border-neutral-100 justify-between items-end">
+                {/* Footer Assinatura e Dados Finais (Empurrado para baixo elegantemente) */}
+                <div className="mt-auto border-t-2 border-neutral-100 flex pt-8 justify-between items-end shrink-0">
                     <div>
-                        <h4 className="font-black text-neutral-900 text-lg">Wendeson Kaua</h4>
-                        <p className="text-sm text-neutral-500 font-medium">Head of Engineering / CEO</p>
-                        <p className="text-xs text-neutral-400">hi@77.tech | +55 61 9999-9999</p>
+                        <h4 className="font-black text-neutral-900 text-lg">77XP TECH</h4>
+                        <p className="text-sm text-neutral-500 font-medium">Top Tier Software Engineering</p>
+                        <p className="text-xs text-neutral-400">hi@77.tech | https://77.tech</p>
                     </div>
                     <div className="text-right">
-                        <img src="https://i.imgur.com/K5b9M47.png" alt="77xp Signature" className="h-8 opacity-20 invert print:invert-0 ml-auto" />
+                        <img src="https://i.imgur.com/K5b9M47.png" alt="77xp Signature" className="h-8 opacity-40 print:opacity-100 invert print:invert-0 ml-auto" />
                     </div>
                 </div>
 

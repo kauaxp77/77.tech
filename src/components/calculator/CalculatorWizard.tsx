@@ -81,9 +81,17 @@ export function CalculatorWizard() {
                 body: JSON.stringify(payload)
             });
             if (!resp.ok) throw new Error("Falha no servidor");
+
+            // Wipe sensitive PII text fields so they don't persist on UI memory
+            setAnswer("leadName", "");
+            setAnswer("leadEmail", "");
+            setAnswer("leadPhone", "");
+            setAnswer("leadCompany", "");
+            setAnswer("challengeDescription", "");
+
             nextStep(); // Vai para o resultado (Step 8)
         } catch {
-            setErrorLine("Ocourreu um erro ao gerar a estimativa. Tente novamente.");
+            setErrorLine("Ocorreu um erro ao gerar a estimativa. Tente novamente.");
         } finally {
             setIsSubmitting(false);
         }

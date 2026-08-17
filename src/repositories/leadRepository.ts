@@ -1,10 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { Lead } from "@/schemas/lead";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "fallback-url";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "fallback-key";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-const hasRealDb = supabaseUrl !== "fallback-url" && supabaseKey !== "fallback-key";
+// Only construct client if valid HTTP variables are given to avoid build crashes
+const hasRealDb = supabaseUrl && supabaseUrl.startsWith("http") && supabaseKey;
 const supabase = hasRealDb ? createClient(supabaseUrl, supabaseKey) : null;
 
 export class LeadRepository {

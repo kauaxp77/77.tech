@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { EventBus } from '@/lib/events'
 
 export async function fetchLeads() {
     const supabase = await createClient()
@@ -27,6 +28,9 @@ export async function moveLead(id: string, newStatus: string) {
         console.error('Error na movimentação de lead CRM:', error)
         throw new Error('Falha arquitetural de segurança ao atualizar status do Lead.')
     }
+
+    // Emitir Domínio (Sprint 7F) para Hooks (ex: Automações Discord/Webhooks)
+    await EventBus.emit('lead.stage_changed', { leadId: id, newStatus });
 
     revalidatePath('/admin')
 }

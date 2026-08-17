@@ -39,7 +39,11 @@ export class CMSService {
     }`;
 
         try {
-            return await sanityClient!.fetch(query);
+            const data = await sanityClient!.fetch(query);
+            if (data && data.length > 0) return data;
+
+            console.warn("[CMS Fallback] Dataset vazio no Sanity. Servindo Blog local.");
+            return blogPosts;
         } catch {
             console.error("Erro na busca do Sanity, regressando para local.");
             return blogPosts;
@@ -62,7 +66,11 @@ export class CMSService {
     }`;
 
         try {
-            return await sanityClient!.fetch(query);
+            const data = await sanityClient!.fetch(query);
+            if (data && data.length > 0) return data;
+
+            console.warn("[CMS Fallback] Dataset vazio no Sanity. Servindo Cases locais.");
+            return casesItems;
         } catch {
             console.error("Erro na busca do Sanity, regressando para local.");
             return casesItems;

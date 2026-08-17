@@ -1,95 +1,85 @@
 <div align="center">
-  <img src="public/logo.png" alt="77xp Tech Solutions" width="150"/>
-  <h1>77xp Tech Solutions</h1>
-  <p><strong>Plataforma Corporativa Premium & Motor Gerador de Demanda</strong></p>
-
-  <p>
-    <img src="https://img.shields.io/badge/Powered_by-Next.js_15-black?style=for-the-badge&logo=next.js" alt="Next.js" />
-    <img src="https://img.shields.io/badge/Database-Supabase-3ECF8E?style=for-the-badge&logo=supabase" alt="Supabase" />
-    <img src="https://img.shields.io/badge/CMS-Sanity-F03E2F?style=for-the-badge&logo=sanity" alt="Sanity" />
-    <img src="https://img.shields.io/badge/State-Zustand-orange?style=for-the-badge" alt="Zustand" />
-    <img src="https://img.shields.io/badge/Tested_by-Playwright-2EAD33?style=for-the-badge" alt="Playwright" />
-  </p>
+  <img src="https://i.imgur.com/K5b9M47.png" alt="77xp Tech Logo" width="120" />
+  <h1>77XP O.S (Operations System) & Master CRM</h1>
+  <p><strong>A Plataforma de Operações B2B High-End projetada para Consultorias de Software.</strong></p>
+  <p>Construída com Next.js 14, Supabase, Tailwind, Sanity CMS & Agentes de Inteligência Artificial OpenAI.</p>
 </div>
 
 ---
 
-## 📌 1. A Evolução do Projeto (Resumo Executivo)
+## 📌 Arquitetura Geral
 
-A antiga landing page estática da **77xp Tech Solutions** foi reconstruída do zero escalando para um ecossistema focado na captação de leads institucionais **(Lead Engine)** de alta segurança. Nós empregamos as mais rigorosas restrições e padrões arquiteturais modernos de Engenharia de Software baseados no modelo de **Modular Monolith**, garantindo que as lógicas de Backend não estejam mescladas erroneamente à árvore de renderização do Client-Side.
-
-### 🚀 Stack Tecnológico Fundamental
-- **Framework Otimizado**: Next.js 15 (App Router, Full Server Components com caching agressivo ISR de Edge).
-- **Styling Core**: Tailwind CSS (Glassmorphism avançado) e Framer Motion (Física UI ultrafluída em sub-rotas).
-- **Database Vault**: Supabase com interrogação via API Routes exclusivas protegendo contra injeção SQL.
-- **Motor de Estados (Calculadora)**: Zustand.
-- **CMS Datastore**: Sanity com implementação nativa de *Graceful Degradation* (Tolerância zero a interrupções).
-- **Alertas Corporativos**: Resend (Serverless E-mail) aliado a React Email Templates Dinâmicos.
+O projeto **77xp O.S** não é um mero site institucional. Trata-se de um ecossistema complexo dividido em duas fronteiras:
+1. **O Palco (Frontend B2B):** Focado em conversão de alto impacto, velocidade extrema e um simulador (Calculadora de Projetos) gamificado para atrair diretores e líderes B2B. A interface usa Framer Motion para estética "Apple".
+2. **O Bastidor (Master CRM B2B):** Uma área executiva `/admin` hiper-restrita por Middlewares, que governa o rastreio, funil financeiro a valoração matemática e semântica de prospectos em tempo real via motores de eventos assíncronos.
 
 ---
 
-## 🏛️ 2. Topologia do Software e Separação de Conceitos
+## 🚀 1. Front-end Híbrido & Engenharia de Conversão
 
-Criamos diretórios segmentados imitando a Clean Architecture leve que blinda o desenvolvimento.
+### 1.1 Motor de Captação B2B (Lead Magnet Multi-step)
+*   **Como funciona:** No lugar de um formulário monótono, há um simulador visual de projeto. O cliente escolhe seu cenário técnico (SaaS, E-commerce, Migrações), preenche as dores de negócio, fornece E-mail Corporativo e Telefone.
+*   **Inteligência Embutida:** A submissão mapeia a URI do visitante (UTM Origin) de forma silenciosa para identificar se veio de tráfego orgânico ou tráfego pago da Vercel/Google, acoplado ao estado global utilizando *Zustand*.
 
-### A) Módulo B2B & Captura (Pipeline Central)
-- Se localiza majoritariamente em `/src/app/api/leads`. É nosso túnel de admissão cimentado por Tipagem em Validação de Zod. Todo payload que chega na web bate nele, que passa para os Domains Seguros (Repositório). Em vez do front disparar emails direto, esse ecossistema funciona nos servidores blindados evitando sequestro de chaves via Console do Google Chrome.
-
-### B) Módulo Estratégico "Lead Magnet" (A Calculadora)
-- A Rota `/calculadora` engatilha o Motor de Lógica Complexa desenvolvido com os seguintes pilares: O `CalculatorWizard` orquestra até 8 passos modulares do usuário. Variáveis como Risco e Pressão de Prazo entram no `estimationEngine` (um micro domain abstrato apenas para conta matemática) que retorna Sugestão Arquitetural em BRL. A imutabilidade do store é gerida puramente via Node.js Zustand.
-
-### C) Módulo Operacional Interno (CRM Kanban & Security Edge)
-- O ecossistema roda um Painel B2B Admin hermético em `/admin`. Ele é rigorosamente envelopado usando **Next.js Middleware Edge** cruzado com validação Server-Side do `@supabase/ssr`. Apenas credenciais autorizadas e validadas contra o banco com meta-dados `role: admin` conseguem contornar as rotas protegidas (Role-Based Access Control).
-- A UI Administrativa opera sob **Row Level Security (RLS)** restrita e utiliza a Engine Mestra do `useOptimistic` State (React 19) e Server Actions. Isso concede fluência irretocável de Zero Latência para mover e classificar os Leads Institucionais nas abas do pipeline sem causar Refetches abusivos na tela.
-
-### D) Módulo Editorial e Motor Headless (Sanity Studio)
-- Fiel à arquitetura do Modular Monolith, acoplamos a central Redatorial do CMS Sanity V3 de forma nativa e física na mesma malha do app (rota `/studio`).
-- A `CMSService` provê uma abstração absoluta: Ela consome dados de Casos e Artigos via GROQ Queries na nuvem Vercel. 
-- **Innovation Alert (Graceful Degradation):** Para evitar desastres perante Datasets Sanity ainda vazios ou ausências de API Keys em servidores locais (clones de novatos), a Service intercepta o perigo silenciosamente na raiz, e recua servindo os arquivos em Mock-ups passivos (`lib/data.ts`). A renderização do layout resiste e não colapsa a face da empresa.
-
-*(Para uma visão mais aprofundada nos Hooks e Funções das APIs, acesse e confira o documento `docs/TECHNICAL_REFERENCE.md`).*
+### 1.2 Sanity CMS "Deep Schema" (Motor de Portfólio e Blogs)
+*   **Como funciona:** Ao invés das postagens viverem estáticas no código, integramos de forma pesada o CMS Headless do Sanity (via Studio route oculta).
+*   **Arquitetura Oculta B2B:** Criamos um "Deep Schema" de Cases de Sucesso. O administrador não cadastra apenas o texto; ele injeta dados matemáticos de **ROI** (ex: "+300% leads"), imagens da Galeria técnica, stack utilizada, depoimento em campos isolados. Essa riqueza de dados é servida via GraphQL-like nativo do Sanity diretamente nos cartões visuais do Frontend da Agência.
 
 ---
 
-## 💻 3. Como Preparar o Setup do Projeto Local 
+## 🧠 2. Dashboard Executivo & Business Intelligence
 
-Se preparar para contribuir no projeto segue o protocolo normal Next.js via Node +20x.
+### 2.1 Visão Estratégica Command Center
+*   **Como funciona:** A Home do CRM consolida uma análise descritiva da operação comercial em blocos dinâmicos baseados no Supabase.
+*   **Heurísticas Financeiras Preditivas:** Baseadas na string do "Tipo de Projeto" selecionado na calculadora (ex: "SaaS"), o código Node deduz a projeção do faturamento (Pipeline Estimate, Revenue Closed e Ticket Médio), atribuindo heurísticas invisíveis baseadas em peso sem precisar do preenchimento prévio do cliente.
+*   **Funil Percentual Real-time:** Um Gráfico visual puro no backend monitorando as camadas funilares (Volume de Choque -> % Retidos na Qualificação -> % Passados a Negociação -> Global Conversion Rate).
 
-**A) Download e Instalações Globais**
-```bash
-git clone https://github.com/kauaxp77/77.tech.git
-cd 77.tech
-npm install
-```
-
-**B) Setup de Secrets Invisíveis**
-- Use o seu painel do **Supabase** e o **Resend** para puxar as suas credenciais API. Crie um arquivo `.env.local` na raiz e obedeça ao espelho que deixamos para você prever os campos no `.env.example`.
-- Preencha primariamente a chave de `SERVICE_ROLE` e garanta que sua URL contenha `https://`.
-
-**C) Go-Live (Levantar o Motor)**
-```bash
-npm run dev
-```
-
-Abra o ecossistema na porta natural [http://localhost:3000](http://localhost:3000). A partir disso, todo evento de Submit do Contato/Calculadora já preencherá o seu Banco de Dados nas nuvens.
+### 2.2 Motor Exportador CSV Enterprise
+*   **Como funciona:** A extração estratégica da base em CSV. A diferença é que ela é protegida! 
+*   **Endpoint Seguro:** Não é só um botão de frontend; criamos um serviço Serverless Rota GET SSR `/api/admin/export`. Ele checa as credenciais Master baseadas em session JWT e codifica o log em texto CSV formatando a pontuação via BOM-UTF8 (Byte Order Mark), não quebrando acentuações no MS Excel Corporativo brasileiro da diretoria.
 
 ---
 
-## 📋 4. Manutenção e Integração Contínua (Deploy)
+## 🏭 3. Board Kanban (Gestão de Pipeline) Dinâmica
 
-A Aplicação foi programada especificamente para fluencia inata dentro do **Google Vercel Networks**.
+### 3.1 Drag-and-Drop (API Nativa) Sem Atrito
+*   **Como funciona:** Você arrasta leads fisicamente (ex: da coluna Novo para Em Negociação). Usamos hooks avançados para evitar loaders travando sua tela enquanto o NodeJS bate na nuvem Supabase confirmando RLS (Row Level Security). O movimento é suave, veloz e altamente robusto.
 
-- **Garantia Pré-Deploy**: Recomendamos fortemente invocar a compilação máxima de cache Typescript `npm run build` na sua máquina local antes de empurrar o repositório, para garantir pass green total sem anacronismo estrutural e evitar quebra nos Workers lá na Vercel Caches.
-
-### 🛡️ Testes de QA Regressivos (End-To-End Testing)
-Nosso repositório é vigiado puramente com uma suite Playwright embutida de alta confiabilidade. Para testar estressores visuais em navegadores autônomos locais, use o binário de rotina:
-```bash
-npx playwright test
-```
-
-*(O Vercel será capaz de ler o arquivo `playwright.config.ts` no futuro para pipelines Github Actions estritos).*
+### 3.2 O Gavetão Lateral de Contexto (Drawer Component)
+*   **Como funciona:** Clique na linha de um prospect e o sistema esmaga a tela à esquerda injetando uma prateleira tática na visualização (slide in direita) detalhando informações pesadas e opções de acionamento do Lead sem você precisar carregar outra página.
 
 ---
 
-> *"Engenharia que fala o idioma dos negócios. Tolerância contra quedas. Perfomance implacável."* 
-> Desenvolvido com excelência técnica por 77xp.
+## ⚙️ 4. O Coração do CRM: Master Intelligence Engine 
+
+Esta é a peça mais formidável do software. O funil não apenas "guarda dados", ele Pensa de 3 formas fundamentais assim que a submissão acontece no front:
+
+### 4.1 O Cérebro Algorítmico Determinal
+*   **SLA Tracker Temporal:** Se um lead bater no funil e demorar mais de 2 horas para alguém falar com ele (ficando na aba "NOVO"), o painel dele no Kanban é pintado de vermelho sinalizando violação do Termo de Tempo Operacional.
+*   **Scoring Dinâmico:** Calcula sozinho (numa métrica 0 a 100) a prioridade baseada em esforço perceptível de escrita do lead no formulário (mensagens detalhadas grandes pontuam +35pts) e presença de ativos fixos corporativos (E-mails e empresas físicas fornecem +40pts).
+*   **Radar Engine de Duplicatas:** Antes da Inserção na Tabela "Leads", o Repositório inspeciona todo o banco tentando interceptar "Emails Prévios" e Números coincidentes para taggear o nome dele em vermelho na UI com `⚠️ Reincidência Oculta`. Evitando perder tempo triplo com mesmo preenchimento.
+
+### 4.2 Cérebro Assíncrono NLP (OpenAI Agent 7G)
+*   **Como Ocorre:** Quando o lead entra na infraestrutura, de nada adiantaria a nota matemática avaliar se o cara só digitasse besteira no escopo da tela. Por isso, interceptamos a rota!
+*   **A Abordagem LLM (Language Model):** Instanciamos um Cérebro OpenAI `gpt-4o-mini` via Prompt oculto. A IA assume ser a "Diretoria B2B". Recebe as variáveis do Lead cruas e escaneia a intenção e a chance de fechamento nas *entrelinhas* em milissegundos. Devolve um JSON com Nota de Maturidade e um "Diagnóstico Ácido Curto" que é imantado fisicamente dentro do CRM para você basear sua tratativa. (Só opera com token inserido em `.env`).
+
+---
+
+## ⚡ 5. Event Bus Engine e Automações (Infraestrutura Serverless Async)
+
+Construímos um sistema Singleton pub/sub Event Bus que **desacopla** todo trabalho pesado da resposta inicial (Para a Calculadora do Lead render ultra rápida). Quando o banco persistir de fato os dados, a classe do Event Bus emite e reage ouvindo esses sinais na própria Cloud:
+
+### 5.1 O Cérebro de Disparo de Webhooks do Discord (Sprint 7B)
+*   A trigger global `lead.created` engatilha uma interface que converte o metadado numa String JSON embutida enviando os valores e a prioridade Mapeada pela OpenAI pra um Webhook do **Discord Interno** do time por conta própria em menos de 100ms. O celular do seu time vibra com o escopo no escuro antes da notificação do email chegar.
+
+### 5.2 Motor Automatizado de Proposta Comercial A4
+*   Localizado na frente da *Activity Drawer*, quando um diretor comercial clica em [Gerar Proposta PDF], um endpoint captura todas as intenções e o ID único. Nós refatoramos HTML e Tailwind com classes de tipografia fina puras voltadas ao CSS Print, para desenhar localmente, com os cálculos base de budget automático, uma página em formato de timbrado virtual estático. Pronta para em 1 clique ser "Impressa Local" em formato de Apresentação Proposta ao cliente.
+
+### 5.3 Quick Actions (WhatsApp CRM)
+*   As Quick Actions executam rotinas massivas com Regex destruindo os espaços textuais do usuário na hora de fazer "Fetch" e montam dinamicamente por trás a URI linkada da API WhatsApp. Permitindo você ler a IA, apertar [Contactar via WhatsApp] e o aplicativo cruzar para chamar virtualmente o número fornecido ali daquele contato. 
+
+---
+
+<div align="center">
+  <p>🛠 O sistema rodará com extrema performance via `npm run dev` dependendo primariamente das Keys de Database: VERCEL, NEXT_PUBLIC_SUPABASE, OPENAI_API_KEY e DISCORD_WEBHOOK_URL expostas em sua camada local.</p>
+</div>

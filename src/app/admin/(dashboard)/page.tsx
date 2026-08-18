@@ -1,7 +1,7 @@
 import React from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { Activity, BarChart3, TrendingUp, Users, DollarSign, Target, PieChart, Focus, Download } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 export const dynamic = 'force-dynamic'
@@ -41,6 +41,17 @@ export default async function AdminDashboardPage() {
         .from('leads')
         .select('*')
         .order('created_at', { ascending: false })
+
+    // Graceful Fetching for Meetings Dashboard Injection
+    const { data: rawMeetings, error: meetError } = await supabase
+        .from('meetings')
+        .select(`
+            *,
+            leads(name, company, project_type)
+        `)
+        .order('meeting_date', { ascending: true })
+
+    const meetings = rawMeetings || []; // Fallback seguro (Se o db não tiver a tabela, retorna null e array vazio)
 
     if (error) {
         return <div className="text-red-500">Falha ao computar relatórios: {error.message}</div>
@@ -255,9 +266,50 @@ export default async function AdminDashboardPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Global Calendar Master Integration */}
+            <div className="glass bg-white/5 border border-white/10 rounded-3xl p-8 mb-10">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-lg font-bold text-white flex items-center gap-2"><Calendar size={18} className="text-white/50" /> Agenda Semanal Master</h2>
+                    <span className="text-xs uppercase tracking-widest text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">{meetings.length} Reuniões Lyncadas</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {meetings.length === 0 ? (
+                        <div className="col-span-full py-16 flex flex-col items-center justify-center text-white/30 border border-white/5 border-dashed rounded-2xl">
+                            <Calendar size={32} className="mb-3 opacity-50" />
+                            <p className="text-sm font-medium">Nenhuma reunião com Prospects atrelada nesta semana.</p>
+                            <p className="text-xs mt-1">(Certifique-se de ter rodado o script SQL da Sprint 9.5)</p>
+                        </div>
+                    ) : (
+                        meetings.map((meet: any) => (
+                            <div key={meet.id} className="bg-black/40 border border-white/5 p-5 rounded-2xl flex flex-col gap-3 group hover:border-emerald-500/30 transition-colors">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold mb-1">{meet.status || 'SCHEDULED'}</p>
+                                        <h3 className="text-white font-bold text-sm truncate">{meet.title}</h3>
+                                    </div>
+                                    <div className="h-8 w-8 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 shrink-0">
+                                        <Video size={14} className="text-white/70" />
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-xs text-white/50 flex items-center gap-2"><Clock size={12} /> {format(new Date(meet.meeting_date), "dd 'de' MMM, HH:mm", { locale: ptBR })}</p>
+                                    <p className="text-xs text-white/30 flex items-center gap-2 truncate"><Users size={12} /> {meet.leads?.name} ({meet.leads?.company || 'PF'})</p>
+                                </div>
+                                {meet.meeting_link && (
+                                    <a href={meet.meeting_link} target="_blank" className="mt-2 text-center text-xs font-bold text-emerald-300 bg-emerald-900/30 py-2 rounded-lg hover:bg-emerald-800/40 transition-colors">
+                                        Entrar na Call
+                                    </a>
+                                )}
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
         </div>
     )
 }
 
 // Icon Wrapper for missing icons in this file scope since lucide-react doesn't export "Flame" directly sometimes (wait, it does, but just in case for Filter)
-import { Filter, Flame } from 'lucide-react';
+import { Filter, Flame, Calendar, Clock, Video } from 'lucide-react';

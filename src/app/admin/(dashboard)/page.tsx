@@ -108,9 +108,6 @@ export default async function AdminDashboardPage() {
             return acc + (baseValue * probability);
         }, 0);
 
-    const revenueClosed = safeLeads
-        .filter(l => l.status === 'FECHADO')
-        .reduce((acc, lead) => acc + (lead.estimated_value || calculateEstimatedTicket(lead.project_type)), 0);
     // Funnel Conversions
     const qualitificados = safeLeads.filter(l => (l.score || 0) >= 40).length; // Media ou Alta
     const conversionQualificado = totalLeads ? Math.round((qualitificados / totalLeads) * 100) : 0;

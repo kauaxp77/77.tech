@@ -19,7 +19,7 @@ export async function GET(request: Request) {
         return new NextResponse("Database Error", { status: 500 });
     }
 
-    // Engine de Parsing JSON para CSV Profissional
+    // Engine de Parsing JSON para CSV Profissional (Power BI Ready)
     const headers = [
         "ID_SISTEMA",
         "DATA_CAPTURA",
@@ -32,6 +32,10 @@ export async function GET(request: Request) {
         "CRM_SCORE",
         "PRIORIDADE",
         "ESTAGIO_FUNIL",
+        "VALOR_ESTIMADO",
+        "RECEITA_MENSAL_MRR",
+        "RECEITA_ANUAL_ARR",
+        "MOTIVO_PERDIDO",
         "MENSAGEM_ESCOPO"
     ];
 
@@ -47,6 +51,10 @@ export async function GET(request: Request) {
         l.score || 0,
         l.priority || 'BAIXA',
         l.status,
+        l.estimated_value || 0,
+        l.mrr || 0,
+        l.arr || 0,
+        `"${(l.loss_reason || '').replace(/"/g, '""')}"`,
         `"${(l.message || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`
     ]);
 

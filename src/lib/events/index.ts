@@ -71,5 +71,33 @@ EventBus.on('lead.stage_changed', async (payload) => {
     // Futuro: Registrar auditoria de SLA, Notificar dono do Lead.
 });
 
+// ICEBREAKER ALERTS: Stagnation Detection -> Discord Alert
+EventBus.on('lead.stagnated', async (lead) => {
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl) return;
+
+    try {
+        await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content: "⚠️ **ALERTA DE ICEBREAKER** <@&HERE>",
+                embeds: [{
+                    title: `🚨 LEAD ESTAGNADO HÁ MAIS DE 5 DIAS`,
+                    description: "Este prospect está esfriando violentamente na etapa NEGOCIAÇÃO. Exigido follow-up imediato do comercial.",
+                    color: 15548997, // Laranja
+                    fields: [
+                        { name: "👤 Cliente / Empresa", value: `${lead.name} (${lead.company || 'PF'})`, inline: true },
+                        { name: "💰 Pipeline Ponderado", value: `R$ ${(lead.estimated_value || 0).toLocaleString('pt-BR')}`, inline: true }
+                    ],
+                    footer: { text: "System Automation: EventBus Stagnation Detector" }
+                }]
+            })
+        });
+    } catch (err: any) {
+        console.error("Falha no alerta de estagnação Discord:", err.message);
+    }
+});
+
 // Forçar a execução na Edge
 export { EventBus };

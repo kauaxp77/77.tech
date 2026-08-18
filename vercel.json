@@ -1,0 +1,8 @@
+{
+    "crons": [
+        {
+            "path": "/api/cron/stagnation",
+            "schedule": "0 10 * * *"
+        }
+    ]
+}

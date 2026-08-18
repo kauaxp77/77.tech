@@ -1,7 +1,7 @@
 "use client";
 
 import { BaseLead } from "./KanbanBoard";
-import { X, Calendar, Clock, Bot, PlusSquare, ArrowRight, Activity, Zap } from "lucide-react";
+import { X, Calendar, Clock, Bot, PlusSquare, ArrowRight, Activity, Zap, Focus } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -85,6 +85,21 @@ export function LeadDrawer({ lead, onClose }: LeadDrawerProps) {
                                 {lead.status !== 'NOVO' ? 'Atendido' : isExpiredSLA ? 'SLA Violado' : 'No Prazo'}
                             </span>
                         </div>
+                    </div>
+
+                    {/* Next Best Action (Heuristic AI Layer) */}
+                    <div className="mb-6 bg-gradient-to-br from-indigo-900/30 to-purple-900/20 border border-indigo-500/30 rounded-2xl p-5 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl" />
+                        <h3 className="text-[10px] uppercase font-bold tracking-widest text-indigo-300 mb-2 flex items-center gap-2">
+                            <Focus size={12} /> Next Best Action Sugerida
+                        </h3>
+                        <p className="text-sm font-medium text-white/90">
+                            {lead.status === 'NOVO' && 'Agendar Call Diagnóstica Inicial para alinhar requisitos.'}
+                            {lead.status === 'CONTATO' && 'Sintetizar dores e Gerar Proposta PDF Comercial.'}
+                            {lead.status === 'NEGOCIACAO' && 'Fazer Follow-up de quebra de objeções (Fechamento).'}
+                            {lead.status === 'FECHADO' && 'Emitir e enviar Contrato Digital para Kick-off.'}
+                            {lead.status === 'PERDIDO' && 'Programar e-mail de reativação para daqui a 6 meses.'}
+                        </p>
                     </div>
 
                     {/* Operational Triggers */}

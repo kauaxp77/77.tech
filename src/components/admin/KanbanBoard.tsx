@@ -16,11 +16,15 @@ export type BaseLead = {
     project_type: string | null;
     message: string;
     source: string | null;
-    status: string;
-    created_at: string;
     score?: number;
     priority?: string;
     sla_deadline?: string;
+    loss_reason?: string;
+    estimated_value?: number;
+    mrr?: number;
+    arr?: number;
+    status: string;
+    created_at: string;
 };
 
 const STATUS_COLUMNS = [
@@ -36,20 +40,25 @@ export function KanbanBoard({ initialLeads }: { initialLeads: BaseLead[] }) {
     const [selectedLead, setSelectedLead] = useState<BaseLead | null>(null);
     const [isPending, startTransition] = useTransition();
 
+    // Modal States para Reason For Loss
+    const [lossModalOpen, setLossModalOpen] = useState(false);
+    const [pendingLossLeadId, setPendingLossLeadId] = useState<string | null>(null);
+    const [lossReason, setLossReason] = useState("");
+
     const [optimisticLeads, addOptimisticLead] = useOptimistic(
         leads,
-        (state, { id, newStatus }: { id: string; newStatus: string }) =>
-            state.map(lead => lead.id === id ? { ...lead, status: newStatus } : lead)
+        (state, update: { id: string; newStatus: string; metadata?: any }) =>
+            state.map(lead => lead.id === update.id ? { ...lead, status: update.newStatus, ...update.metadata } : lead)
     );
 
-    const handleMove = async (id: string, newStatus: string) => {
+    const handleMove = async (id: string, newStatus: string, metadata?: any) => {
         startTransition(() => {
-            addOptimisticLead({ id, newStatus });
+            addOptimisticLead({ id, newStatus, metadata });
         });
 
         try {
-            await moveLead(id, newStatus);
-            setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
+            await moveLead(id, newStatus, metadata);
+            setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus, ...metadata } : l));
         } catch {
             // Revert state naturally by Next
         }
@@ -80,13 +89,45 @@ export function KanbanBoard({ initialLeads }: { initialLeads: BaseLead[] }) {
         if (leadId) {
             const lead = optimisticLeads.find(l => l.id === leadId);
             if (lead && lead.status !== columnKey) {
-                handleMove(leadId, columnKey);
+                if (columnKey === 'PERDIDO') {
+                    setPendingLossLeadId(leadId);
+                    setLossModalOpen(true);
+                } else {
+                    handleMove(leadId, columnKey);
+                }
             }
         }
     };
 
     return (
         <>
+            {/* Loss Reason Modal */}
+            {lossModalOpen && (
+                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                    <div className="bg-neutral-900 border border-red-500/30 rounded-3xl p-8 max-w-md w-full shadow-2xl">
+                        <h3 className="text-xl font-bold text-white mb-2">Motivo da Perda</h3>
+                        <p className="text-sm text-neutral-400 mb-6">Classifique a objeção principal do cliente para ajudar nosso BI.</p>
+                        <select value={lossReason} onChange={(e) => setLossReason(e.target.value)} className="w-full bg-black border border-white/10 rounded-xl p-3 text-white mb-6 focus:ring-[var(--color-primary)] outline-none">
+                            <option value="">Selecione um motivo...</option>
+                            <option value="Orçamento">Orçamento baixo</option>
+                            <option value="Concorrente">Fechou com concorrente</option>
+                            <option value="Sem Resposta">Ghosting / Sem Resposta</option>
+                            <option value="Escopo">Escopo Inadequado</option>
+                            <option value="Timing">Timing Errado</option>
+                        </select>
+                        <div className="flex gap-4">
+                            <button onClick={() => { setLossModalOpen(false); setPendingLossLeadId(null); }} className="flex-1 bg-white/5 py-3 rounded-xl block text-center hover:bg-white/10 text-white transition">Cancelar</button>
+                            <button onClick={() => {
+                                if (!lossReason) return;
+                                handleMove(pendingLossLeadId!, "PERDIDO", { loss_reason: lossReason });
+                                setLossModalOpen(false);
+                                setPendingLossLeadId(null);
+                            }} className="flex-1 bg-red-600 font-bold py-3 rounded-xl block text-center hover:bg-red-500 text-white transition">Confirmar Perda</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="flex flex-col md:flex-row gap-6 w-full overflow-x-auto pb-8 items-start snap-x">
                 {STATUS_COLUMNS.map(col => (
                     <div
@@ -157,9 +198,11 @@ export function KanbanBoard({ initialLeads }: { initialLeads: BaseLead[] }) {
                                             )}
                                         </div>
 
-                                        <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5 pointer-events-none">
-                                            <span className="text-[10px] text-white/30 uppercase tracking-widest">{lead.project_type || 'OUTRO'}</span>
-                                            <span className="text-[10px] text-white/30">{new Date(lead.created_at).toLocaleDateString()}</span>
+                                        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/5">
+                                            <div className="text-xs font-mono text-white/50 bg-white/5 px-2 py-1 rounded">
+                                                R$ {lead.estimated_value?.toLocaleString('pt-BR') || '---'}
+                                            </div>
+                                            {lead.mrr ? <div className="text-[10px] font-bold text-blue-400 bg-blue-900/20 px-2 py-1 rounded tracking-widest uppercase">MRR: R$ {lead.mrr.toLocaleString('pt-BR')}</div> : null}
                                         </div>
                                     </div>
                                 )

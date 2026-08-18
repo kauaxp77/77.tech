@@ -15,13 +15,18 @@ export async function fetchLeads() {
     return leads
 }
 
-export async function moveLead(id: string, newStatus: string) {
+export async function moveLead(id: string, newStatus: string, metadata?: { loss_reason?: string; estimated_value?: number; mrr?: number }) {
     const supabase = await createClient()
+
+    const updatePayload: Record<string, any> = { status: newStatus };
+    if (metadata?.loss_reason) updatePayload.loss_reason = metadata.loss_reason;
+    if (metadata?.estimated_value !== undefined) updatePayload.estimated_value = metadata.estimated_value;
+    if (metadata?.mrr !== undefined) updatePayload.mrr = metadata.mrr;
 
     // Check permission automatically enforced by Supabase SSR Client transmitting Cookies
     const { error } = await supabase
         .from('leads')
-        .update({ status: newStatus })
+        .update(updatePayload)
         .eq('id', id)
 
     if (error) {

@@ -54,14 +54,29 @@ export default async function AdminDashboardPage() {
     const leadsFechados = safeLeads.filter(l => l.status === 'FECHADO').length;
     const leadsEmNegociacao = safeLeads.filter(l => l.status === 'NEGOCIACAO').length;
 
-    // Financial Heuristics
-    const pipelineEstimate = safeLeads
-        .filter(l => l.status !== 'PERDIDO' && l.status !== 'FECHADO')
-        .reduce((acc, lead) => acc + calculateEstimatedTicket(lead.project_type), 0);
+    // Recurring Revenue Metrics
+    const mrrTotal = safeLeads.reduce((acc, lead) => acc + (lead.mrr || 0), 0);
+    const arrTotal = mrrTotal * 12;
+
+    // Financial Pipeline (Weighted Forecast)
+    const pipelineAtivo = safeLeads
+        .filter(l => l.status !== 'PERDIDO' && l.status !== 'FECHADO');
+
+    const pipelineEstimate = pipelineAtivo
+        .reduce((acc, lead) => acc + (lead.estimated_value || calculateEstimatedTicket(lead.project_type)), 0);
+
+    const weightedPipeline = pipelineAtivo
+        .reduce((acc, lead) => {
+            const baseValue = lead.estimated_value || calculateEstimatedTicket(lead.project_type);
+            let probability = 0.1; // NOVO
+            if (lead.status === 'CONTATO') probability = 0.3;
+            if (lead.status === 'NEGOCIACAO') probability = 0.7;
+            return acc + (baseValue * probability);
+        }, 0);
 
     const revenueClosed = safeLeads
         .filter(l => l.status === 'FECHADO')
-        .reduce((acc, lead) => acc + calculateEstimatedTicket(lead.project_type), 0);
+        .reduce((acc, lead) => acc + (lead.estimated_value || calculateEstimatedTicket(lead.project_type)), 0);
 
     const avgTicket = safeLeads.length > 0 ? (safeLeads.reduce((acc, lead) => acc + calculateEstimatedTicket(lead.project_type), 0) / safeLeads.length) : 0;
 
@@ -78,6 +93,18 @@ export default async function AdminDashboardPage() {
         acc[src] = (acc[src] || 0) + 1;
         return acc;
     }, {} as Record<string, number>);
+
+    // Product Conversion Breakdown
+    const productStats = safeLeads.reduce((acc, l) => {
+        const type = l.project_type || 'Outro';
+        if (!acc[type]) acc[type] = { total: 0, won: 0, revenue: 0 };
+        acc[type].total++;
+        if (l.status === 'FECHADO') {
+            acc[type].won++;
+            acc[type].revenue += (l.estimated_value || calculateEstimatedTicket(type));
+        }
+        return acc;
+    }, {} as Record<string, { total: number, won: number, revenue: number }>);
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
@@ -97,35 +124,35 @@ export default async function AdminDashboardPage() {
                 </a>
             </div>
 
-            {/* Strategic Overview Grid */}
+            {/* Strategic Revenue Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <MetricCard
-                    title="Volume Total"
-                    value={totalLeads}
-                    subtitle="Leads Brutos na Base"
-                    icon={Users}
-                    colorClass="bg-blue-500"
+                    title="Receita Realizada (Fechada)"
+                    value={`R$ ${(revenueClosed / 1000).toFixed(1)}k`}
+                    subtitle="One-Time Revenue"
+                    icon={Target}
+                    colorClass="bg-emerald-500"
                 />
                 <MetricCard
-                    title="Leads Quentes (ALTA)"
-                    value={leadsQuentes}
-                    subtitle="Score > 70 ou SLA Ativo"
-                    icon={Flame}
-                    colorClass="bg-red-500"
+                    title="ARR (Annual Recurring)"
+                    value={`R$ ${(arrTotal / 1000).toFixed(1)}k`}
+                    subtitle={`MRR Atual: R$ ${mrrTotal.toLocaleString()}`}
+                    icon={TrendingUp}
+                    colorClass="bg-indigo-500"
                 />
                 <MetricCard
-                    title="Pipeline Estimado"
-                    value={`R$ ${(pipelineEstimate / 1000).toFixed(1)}k`}
-                    subtitle="Potencial Circulante"
+                    title="Forecast (Ponderado)"
+                    value={`R$ ${(weightedPipeline / 1000).toFixed(1)}k`}
+                    subtitle={`Pipeline Bruto: R$ ${(pipelineEstimate / 1000).toFixed(1)}k`}
                     icon={DollarSign}
                     colorClass="bg-amber-500"
                 />
                 <MetricCard
-                    title="Ticket Médio"
-                    value={`R$ ${(avgTicket / 1000).toFixed(1)}k`}
-                    subtitle="Baseado no Custo do Escopo"
-                    icon={Target}
-                    colorClass="bg-emerald-500"
+                    title="Conversão Global"
+                    value={`${conversionGlobal}%`}
+                    subtitle={`${leadsFechados} fechados de ${totalLeads} prospects`}
+                    icon={PieChart}
+                    colorClass="bg-blue-500"
                 />
             </div>
 
@@ -177,29 +204,54 @@ export default async function AdminDashboardPage() {
                     </div>
                 </div>
 
-                {/* Source Intelligence */}
-                <div className="glass bg-white/5 border border-white/10 rounded-3xl p-8">
-                    <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><PieChart size={18} className="text-white/50" /> Origem UTM</h2>
+                {/* Sidebar Analytics Panel */}
+                <div className="glass bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col gap-8">
 
-                    <div className="space-y-4">
-                        {(Object.entries(sources) as [string, number][]).sort((a, b) => b[1] - a[1]).map(([source, count], index) => {
-                            const percent = Math.round((count / totalLeads) * 100);
-                            return (
-                                <div key={source} className="group">
-                                    <div className="flex justify-between text-xs mb-1">
-                                        <span className="font-mono text-white/70 uppercase tracking-widest">{source}</span>
-                                        <span className="text-white/40">{count} ({percent}%)</span>
+                    {/* Product Conversion Analytics */}
+                    <div>
+                        <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><PieChart size={18} className="text-white/50" /> Conversão Produto</h2>
+                        <div className="space-y-4">
+                            {(Object.entries(productStats) as [string, { total: number, won: number, revenue: number }][]).sort((a, b) => b[1].revenue - a[1].revenue).map(([type, stats]) => {
+                                const winRate = stats.total > 0 ? Math.round((stats.won / stats.total) * 100) : 0;
+                                return (
+                                    <div key={type} className="group border-b border-white/5 pb-3">
+                                        <div className="flex justify-between text-xs mb-1">
+                                            <span className="font-mono text-white/70 uppercase tracking-widest truncate">{type}</span>
+                                            <span className="text-emerald-400 font-bold">R$ {(stats.revenue / 1000).toFixed(1)}k</span>
+                                        </div>
+                                        <div className="flex justify-between text-[10px] text-white/40 mt-1">
+                                            <span>Win Rate: {winRate}%</span>
+                                            <span>{stats.won} wins (de {stats.total})</span>
+                                        </div>
                                     </div>
-                                    <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
-                                        <div className="bg-white/30 h-full group-hover:bg-white transition-colors" style={{ width: `${percent}%` }}></div>
-                                    </div>
-                                </div>
-                            )
-                        })}
+                                )
+                            })}
+                            {Object.keys(productStats).length === 0 && <p className="text-xs text-white/30 text-center py-4">Sem Produtos Fechados.</p>}
+                        </div>
+                    </div>
 
-                        {Object.keys(sources).length === 0 && (
-                            <p className="text-xs text-white/30 text-center py-10">Bases UTM Vazias</p>
-                        )}
+                    {/* Source Intelligence */}
+                    <div>
+                        <h2 className="text-sm font-bold text-white/50 mb-4 uppercase tracking-widest">Origem UTM</h2>
+                        <div className="space-y-4">
+                            {(Object.entries(sources) as [string, number][]).sort((a, b) => b[1] - a[1]).map(([source, count], index) => {
+                                const percent = Math.round((count / totalLeads) * 100);
+                                return (
+                                    <div key={source} className="group">
+                                        <div className="flex justify-between text-xs mb-1">
+                                            <span className="font-mono text-white/70 uppercase tracking-widest">{source}</span>
+                                            <span className="text-white/40">{count} ({percent}%)</span>
+                                        </div>
+                                        <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
+                                            <div className="bg-white/30 h-full group-hover:bg-white transition-colors" style={{ width: `${percent}%` }}></div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                            {Object.keys(sources).length === 0 && (
+                                <p className="text-xs text-white/30 text-center py-4">Bases UTM Vazias</p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

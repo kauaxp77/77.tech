@@ -11,8 +11,11 @@ export function ScheduleMeetingForm({ leadId }: { leadId: string }) {
     const [time, setTime] = useState("");
     const [link, setLink] = useState("");
 
+    const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setMessage(null);
         if (!title || !date || !time) return;
 
         const isoDate = new Date(`${date}T${time}:00`).toISOString();
@@ -22,13 +25,14 @@ export function ScheduleMeetingForm({ leadId }: { leadId: string }) {
                 const res = await scheduleMeeting(leadId, title, isoDate, "Google Meet", link);
 
                 if (res?.error) {
-                    alert(res.error);
+                    setMessage({ text: res.error, type: 'error' });
                 } else {
-                    alert("Reunião agendada com sucesso!");
+                    setMessage({ text: "Reunião cravada na Agenda!", type: 'success' });
                     setTitle(""); setDate(""); setTime(""); setLink(""); // Reset
+                    setTimeout(() => setMessage(null), 5000); // Apaga depois de 5 segundos
                 }
             } catch (err: any) {
-                alert("Erro interno de comunicação.");
+                setMessage({ text: "Erro interno de comunicação.", type: 'error' });
             }
         });
     };
@@ -71,6 +75,12 @@ export function ScheduleMeetingForm({ leadId }: { leadId: string }) {
                     value={link}
                     onChange={(e) => setLink(e.target.value)}
                 />
+
+                {message && (
+                    <div className={`text-xs p-3 rounded-lg flex items-center gap-2 font-bold ${message.type === 'success' ? 'bg-emerald-900/40 text-emerald-400 border border-emerald-500/20' : 'bg-red-900/40 text-red-400 border border-red-500/20'}`}>
+                        {message.text}
+                    </div>
+                )}
 
                 <button
                     disabled={isPending}

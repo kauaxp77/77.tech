@@ -34,6 +34,19 @@ export async function moveLead(id: string, newStatus: string, metadata?: { loss_
         throw new Error('Falha arquitetural de segurança ao atualizar status do Lead.')
     }
 
+    // [SPRINT 9.6] Gravar Trilha de Auditoria Universal (Caixa Preta)
+    // Tenta obter o usuário logado (opcional, só p/ gravar, pode falhar/null sem problemas)
+    const { data: { user } } = await supabase.auth.getUser();
+
+    await supabase.from('audit_logs').insert([{
+        entity_type: 'lead',
+        entity_id: id,
+        action: `STATUS_CHANGED_TO_${newStatus.toUpperCase()}`,
+        user_id: user?.id || null,
+        user_email: user?.email || 'N/A (Anônimo ou Admin Root)',
+        new_data: updatePayload
+    }]);
+
     // Emitir Domínio (Sprint 7F) para Hooks (ex: Automações Discord/Webhooks)
     await EventBus.emit('lead.stage_changed', { leadId: id, newStatus });
 

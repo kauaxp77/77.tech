@@ -55,7 +55,7 @@ export async function scheduleMeeting(leadId: string, title: string, meetingDate
 
         if (error) {
             console.error('Falha ao registrar reunião Call B2B no BD:', error);
-            return { error: 'Falha no banco de dados B2B. A tabela meetings existe e as permissões estão corretas?' };
+            return { error: `Supabase Policy/Format Error: ${error.message} (Code: ${error.code})` };
         }
 
         revalidatePath('/admin');

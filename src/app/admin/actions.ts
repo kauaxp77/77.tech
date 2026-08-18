@@ -78,3 +78,14 @@ export async function scheduleMeeting(leadId: string, title: string, meetingDate
         return { error: 'Falha crítica ao se comunicar com o banco de Oportunidades.' };
     }
 }
+
+export async function getLeadAudits(leadId: string) {
+    const supabase = await createClient();
+    const { data } = await supabase
+        .from('audit_logs')
+        .select('*')
+        .eq('entity_id', leadId)
+        .order('created_at', { ascending: false });
+
+    return data || [];
+}

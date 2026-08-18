@@ -6,6 +6,7 @@ import { X, Calendar, Clock, Bot, PlusSquare, ArrowRight, Activity, Zap, Focus, 
 import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ScheduleMeetingForm } from "./ScheduleMeetingForm";
+import { SalesbotApprovalQueue } from "./SalesbotApprovalQueue";
 import { getLeadAudits } from "@/app/admin/actions";
 
 interface LeadDrawerProps {
@@ -86,23 +87,8 @@ export function LeadDrawer({ lead, onClose }: LeadDrawerProps) {
                         </div>
                     </div>
 
-                    {/* AI Next Best Action Engine */}
-                    <div className="bg-[#0f0c29] border border-purple-500/20 p-5 rounded-2xl mb-8 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 blur-xl group-hover:blur-md transition-all">
-                            <Bot size={64} className="text-purple-400" />
-                        </div>
-                        <h3 className="text-[10px] uppercase tracking-widest text-purple-400 font-bold mb-3 flex items-center gap-2">
-                            <Focus size={12} /> Next Best Action Sugerida
-                        </h3>
-                        <p className="text-white text-sm font-medium leading-relaxed relative z-10">
-                            {lead.status === 'ENVIADO' && 'Apresentar pacote MVP B2B. Lead possui perfil de alto ticket.'}
-                            {lead.status === 'ANALISE' && 'Exigido Discovery Call urgente para refinamento de escopo técnico.'}
-                            {lead.status === 'PROPOSTA' && 'Aguardar resposta do cliente. Acionar gatilho de urgência em 48h.'}
-                            {lead.status === 'NEGOCIACAO' && 'Fazer Follow-up de quebra de objeções (Fechamento).'}
-                            {lead.status === 'FECHADO' && 'Emitir e enviar Contrato Digital para Kick-off.'}
-                            {lead.status === 'PERDIDO' && 'Programar e-mail de reativação para daqui a 6 meses.'}
-                        </p>
-                    </div>
+                    {/* Fila Humana & Salesbot AI Engine */}
+                    <SalesbotApprovalQueue lead={lead} />
 
                     {/* Form de Agendamento */}
                     <ScheduleMeetingForm leadId={lead.id} />

@@ -19,11 +19,16 @@ export function ScheduleMeetingForm({ leadId }: { leadId: string }) {
 
         startTransition(async () => {
             try {
-                await scheduleMeeting(leadId, title, isoDate, "Google Meet", link);
-                alert("Reunião agendada com sucesso!");
-                setTitle(""); setDate(""); setTime(""); setLink(""); // Reset
+                const res = await scheduleMeeting(leadId, title, isoDate, "Google Meet", link);
+
+                if (res?.error) {
+                    alert(res.error);
+                } else {
+                    alert("Reunião agendada com sucesso!");
+                    setTitle(""); setDate(""); setTime(""); setLink(""); // Reset
+                }
             } catch (err: any) {
-                alert(err.message);
+                alert("Erro interno de comunicação.");
             }
         });
     };

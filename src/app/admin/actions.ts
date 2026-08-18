@@ -89,3 +89,18 @@ export async function getLeadAudits(leadId: string) {
 
     return data || [];
 }
+
+export async function deleteMeeting(meetingId: string) {
+    const supabase = await createClient();
+    const { error } = await supabase
+        .from('meetings')
+        .delete()
+        .eq('id', meetingId);
+
+    if (error) {
+        console.error('Falha ao excluir reunião B2B:', error);
+        throw new Error('Falha arquitetural ao excluir a oportunidade no CRM.');
+    }
+
+    revalidatePath('/admin/dashboard');
+}

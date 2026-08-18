@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Activity, BarChart3, TrendingUp, Users, DollarSign, Target, PieChart, Focus, Download } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { DeleteMeetingButton } from "@/components/admin/DeleteMeetingButton";
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -284,13 +285,16 @@ export default async function AdminDashboardPage() {
                     ) : (
                         meetings.map((meet: any) => (
                             <div key={meet.id} className="bg-black/40 border border-white/5 p-5 rounded-2xl flex flex-col gap-3 group hover:border-emerald-500/30 transition-colors">
-                                <div className="flex justify-between items-start">
-                                    <div>
+                                <div className="flex justify-between items-start gap-2">
+                                    <div className="flex-1 min-w-0">
                                         <p className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold mb-1">{meet.status || 'SCHEDULED'}</p>
                                         <h3 className="text-white font-bold text-sm truncate">{meet.title}</h3>
                                     </div>
-                                    <div className="h-8 w-8 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 shrink-0">
-                                        <Video size={14} className="text-white/70" />
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        <div className="h-8 w-8 bg-white/5 rounded-xl flex items-center justify-center border border-white/10">
+                                            <Video size={14} className="text-white/70" />
+                                        </div>
+                                        <DeleteMeetingButton meetingId={meet.id} />
                                     </div>
                                 </div>
                                 <div className="space-y-1">

@@ -4,6 +4,7 @@ import { BaseLead } from "./KanbanBoard";
 import { X, Calendar, Clock, Bot, PlusSquare, ArrowRight, Activity, Zap, Focus } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { ScheduleMeetingForm } from "./ScheduleMeetingForm";
 
 interface LeadDrawerProps {
     lead: BaseLead | null;
@@ -101,6 +102,9 @@ export function LeadDrawer({ lead, onClose }: LeadDrawerProps) {
                             {lead.status === 'PERDIDO' && 'Programar e-mail de reativação para daqui a 6 meses.'}
                         </p>
                     </div>
+
+                    {/* Form de Agendamento */}
+                    <ScheduleMeetingForm leadId={lead.id} />
 
                     {/* Operational Triggers */}
                     <div className="flex gap-4 mb-8">

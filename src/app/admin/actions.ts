@@ -39,3 +39,23 @@ export async function moveLead(id: string, newStatus: string, metadata?: { loss_
 
     revalidatePath('/admin')
 }
+
+export async function scheduleMeeting(leadId: string, title: string, meetingDate: string, platform: string, link: string) {
+    const supabase = await createClient()
+
+    const { error } = await supabase.from('meetings').insert([{
+        lead_id: leadId,
+        title,
+        meeting_date: meetingDate, // ISO 8601 string
+        platform,
+        meeting_link: link,
+        status: 'SCHEDULED'
+    }]);
+
+    if (error) {
+        console.error('Falha ao registrar reunião Call B2B no BD:', error);
+        throw new Error('Não foi possível gravar o agendamento.');
+    }
+
+    revalidatePath('/admin');
+}

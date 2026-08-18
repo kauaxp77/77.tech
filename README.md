@@ -1,8 +1,16 @@
 <div align="center">
-  <img src="https://i.imgur.com/K5b9M47.png" alt="77xp Tech Logo" width="120" />
-  <h1>77XP O.S (Operations System) & Master CRM</h1>
+  <h1>🚀 77XP O.S (Operations System) & Master CRM</h1>
   <p><strong>A Plataforma de Operações B2B High-End projetada para Consultorias de Software.</strong></p>
-  <p>Construída com Next.js 15, Supabase (RLS), Tailwind, Sanity CMS & OpenAI O-Models.</p>
+  
+  <p>
+    <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
+    <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
+    <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+    <img src="https://img.shields.io/badge/Sanity-F03E2F?style=for-the-badge&logo=sanity&logoColor=white" alt="Sanity CMS" />
+    <img src="https://img.shields.io/badge/Stripe-626CD9?style=for-the-badge&logo=Stripe&logoColor=white" alt="Stripe" />
+    <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" />
+  </p>
 </div>
 
 ---

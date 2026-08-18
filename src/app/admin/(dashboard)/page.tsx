@@ -4,6 +4,7 @@ import { Activity, BarChart3, TrendingUp, Users, DollarSign, Target, PieChart, F
 import { formatDistanceToNow, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { DeleteMeetingButton } from "@/components/admin/DeleteMeetingButton";
+import Link from "next/link";
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -67,12 +68,33 @@ export default async function AdminDashboardPage() {
     const leadsEmNegociacao = safeLeads.filter(l => l.status === 'NEGOCIACAO').length;
 
     // Recurring Revenue Metrics
-    const mrrTotal = safeLeads.reduce((acc, lead) => acc + (lead.mrr || 0), 0);
+    const mrrTotal = safeLeads.reduce((acc, lead) => {
+        const baseValue = lead.estimated_value || calculateEstimatedTicket(lead.project_type);
+        const mrr = lead.mrr || (baseValue * 0.1); // Assumir 10%
+        return acc + mrr;
+    }, 0);
     const arrTotal = mrrTotal * 12;
+
+    // Velocity & ACV
+    const revenueClosed = safeLeads
+        .filter(l => l.status === 'FECHADO')
+        .reduce((acc, lead) => acc + (lead.estimated_value || calculateEstimatedTicket(lead.project_type)), 0);
+
+    const avgTicket = leadsFechados > 0 ? (revenueClosed / leadsFechados) : 0;
 
     // Financial Pipeline (Weighted Forecast)
     const pipelineAtivo = safeLeads
         .filter(l => l.status !== 'PERDIDO' && l.status !== 'FECHADO');
+
+    // SLA Stagnation Checker (More than 15 days in pipeline)
+    const stagnantLeads = pipelineAtivo.filter(l => {
+        const daysInPipeline = Math.floor((new Date().getTime() - new Date(l.created_at).getTime()) / (1000 * 3600 * 24));
+        return daysInPipeline > 15;
+    });
+
+    const velocityDays = leadsFechados > 0
+        ? Math.floor(safeLeads.filter(l => l.status === 'FECHADO').reduce((acc, l) => acc + (new Date().getTime() - new Date(l.created_at).getTime()), 0) / leadsFechados / (1000 * 3600 * 24))
+        : 14;
 
     const pipelineEstimate = pipelineAtivo
         .reduce((acc, lead) => acc + (lead.estimated_value || calculateEstimatedTicket(lead.project_type)), 0);
@@ -89,9 +111,6 @@ export default async function AdminDashboardPage() {
     const revenueClosed = safeLeads
         .filter(l => l.status === 'FECHADO')
         .reduce((acc, lead) => acc + (lead.estimated_value || calculateEstimatedTicket(lead.project_type)), 0);
-
-    const avgTicket = safeLeads.length > 0 ? (safeLeads.reduce((acc, lead) => acc + calculateEstimatedTicket(lead.project_type), 0) / safeLeads.length) : 0;
-
     // Funnel Conversions
     const qualitificados = safeLeads.filter(l => (l.score || 0) >= 40).length; // Media ou Alta
     const conversionQualificado = totalLeads ? Math.round((qualitificados / totalLeads) * 100) : 0;
@@ -136,8 +155,26 @@ export default async function AdminDashboardPage() {
                 </a>
             </div>
 
+            {/* SLA Alert Banner */}
+            {stagnantLeads.length > 0 && (
+                <div className="bg-red-500/10 border border-red-500/50 rounded-2xl p-4 flex items-center justify-between shadow-[0_0_25px_rgba(239,68,68,0.1)]">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center animate-pulse">
+                            <Focus size={20} className="text-red-400" />
+                        </div>
+                        <div>
+                            <h3 className="text-red-400 font-bold text-sm uppercase tracking-widest">Alerta de SLA (Gargalo no Funil)</h3>
+                            <p className="text-white/70 text-sm mt-1">Você tem <strong className="text-white">{stagnantLeads.length} leads estagnados</strong> há mais de 15 dias no seu CRM sem conversão ou contato recente. Verifique a gaveta.</p>
+                        </div>
+                    </div>
+                    <Link href="/admin/pipeline" className="hidden md:flex bg-red-500/20 hover:bg-red-500/30 text-red-300 font-bold text-xs uppercase tracking-widest px-4 py-2 rounded-xl transition-all">
+                        Resolver Agora
+                    </Link>
+                </div>
+            )}
+
             {/* Strategic Revenue Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
                 <MetricCard
                     title="Receita Realizada (Fechada)"
                     value={`R$ ${(revenueClosed / 1000).toFixed(1)}k`}
@@ -155,14 +192,28 @@ export default async function AdminDashboardPage() {
                 <MetricCard
                     title="Forecast (Ponderado)"
                     value={`R$ ${(weightedPipeline / 1000).toFixed(1)}k`}
-                    subtitle={`Pipeline Bruto: R$ ${(pipelineEstimate / 1000).toFixed(1)}k`}
+                    subtitle={`Bruto: R$ ${(pipelineEstimate / 1000).toFixed(1)}k`}
                     icon={DollarSign}
                     colorClass="bg-amber-500"
                 />
                 <MetricCard
-                    title="Conversão Global"
+                    title="Ticket Médio (ACV)"
+                    value={avgTicket > 0 ? `R$ ${(avgTicket / 1000).toFixed(1)}k` : 'R$ 0.0k'}
+                    subtitle="Average Contract Value"
+                    icon={Users}
+                    colorClass="bg-cyan-500"
+                />
+                <MetricCard
+                    title="Velocidade B2B"
+                    value={`${velocityDays} Dias`}
+                    subtitle="Tempo Médio C2C (Close)"
+                    icon={Activity}
+                    colorClass="bg-fuchsia-500"
+                />
+                <MetricCard
+                    title="Win-Rate Global"
                     value={`${conversionGlobal}%`}
-                    subtitle={`${leadsFechados} fechados de ${totalLeads} prospects`}
+                    subtitle={`${leadsFechados} vitórias`}
                     icon={PieChart}
                     colorClass="bg-blue-500"
                 />

@@ -39,24 +39,39 @@ export async function GET(request: Request) {
         "MENSAGEM_ESCOPO"
     ];
 
-    const rows = leads.map(l => [
-        l.id,
-        new Date(l.created_at).toLocaleString('pt-BR'),
-        `"${l.name.replace(/"/g, '""')}"`,
-        l.email,
-        l.phone || 'N/A',
-        `"${(l.company || 'Pessoa Física').replace(/"/g, '""')}"`,
-        `"${l.project_type || 'N/A'}"`,
-        l.source || 'Orgânico',
-        l.score || 0,
-        l.priority || 'BAIXA',
-        l.status,
-        l.estimated_value || 0,
-        l.mrr || 0,
-        l.arr || 0,
-        `"${(l.loss_reason || '').replace(/"/g, '""')}"`,
-        `"${(l.message || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`
-    ]);
+    function calculateSimulatedTicket(projectType: string | null) {
+        if (!projectType) return 0;
+        if (projectType.includes('SaaS') || projectType.includes('Sistemas')) return 15000;
+        if (projectType.includes('E-commerce')) return 8000;
+        if (projectType.includes('Escalonável')) return 4000;
+        if (projectType.includes('Landing')) return 2500;
+        return 1500;
+    }
+
+    const rows = leads.map(l => {
+        const baseValue = l.estimated_value || calculateSimulatedTicket(l.project_type);
+        const mrr = l.mrr || (baseValue * 0.1); // Assumir 10% do valor como MRR recorrente p/ B2B
+        const arr = l.arr || (mrr * 12);
+
+        return [
+            l.id,
+            new Date(l.created_at).toLocaleString('pt-BR'),
+            `"${l.name.replace(/"/g, '""')}"`,
+            l.email,
+            l.phone || 'N/A',
+            `"${(l.company || 'Pessoa Física').replace(/"/g, '""')}"`,
+            `"${l.project_type || 'N/A'}"`,
+            l.source || 'Orgânico',
+            l.score || 0,
+            l.priority || 'BAIXA',
+            l.status,
+            baseValue,
+            mrr,
+            arr,
+            `"${(l.loss_reason || '').replace(/"/g, '""')}"`,
+            `"${(l.message || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`
+        ]
+    });
 
     // Montando a String Bruta do CSV compatível com MS Excel Localizado BR
     const csvContent = [

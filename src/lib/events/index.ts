@@ -99,5 +99,34 @@ EventBus.on('lead.stagnated', async (lead) => {
     }
 });
 
+// DEAL WON ALERTS: Stripe Checkout -> Discord Alarm (Gong!)
+EventBus.on('deal.won', async (payload: { leadId: string, amountTotal: number | null, currency: string | null }) => {
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl) return;
+
+    try {
+        await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content: "🎉 **NOVO NEGÓCIO FECHADO! PINGOU NA CONTA!** <@&HERE>",
+                embeds: [{
+                    title: `💸 DEAL WON - PAGAMENTO STRIPE APROVADO`,
+                    description: "O cliente acabou de bater o cartão/pix na plataforma de Propostas! O Lead foi movido para FECHADO automaticamente.",
+                    color: 3066993, // Verde Escuro
+                    fields: [
+                        { name: "🔗 ID Referência", value: payload.leadId, inline: true },
+                        { name: "🏦 Receita Direta", value: payload.amountTotal ? `R$ ${(payload.amountTotal / 100).toLocaleString('pt-BR')}` : "N/A", inline: true }
+                    ],
+                    thumbnail: { url: "https://i.imgur.com/8Q3E29v.png" }, // Dinheiro Icon
+                    footer: { text: "System Automation: EventBus Payment Webhook" }
+                }]
+            })
+        });
+    } catch (err: any) {
+        console.error("Falha no alerta de pagamento Discord:", err.message);
+    }
+});
+
 // Forçar a execução na Edge
 export { EventBus };

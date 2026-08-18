@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { CheckCircle2, Calculator, Settings2, Code, ShieldCheck } from "lucide-react";
 import { PrintButton } from "@/components/admin/PrintButton";
+import { StripeButton } from "@/components/admin/StripeButton";
 
 export default async function ProposalPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -43,7 +44,10 @@ export default async function ProposalPage({ params }: { params: Promise<{ id: s
                     <h2 className="text-white font-bold">Proposta Comercial [Padrão 77XP]</h2>
                     <p className="text-white/50 text-sm">Design otimizado formato A4. Pressione Baixar e salve como PDF.</p>
                 </div>
-                <PrintButton />
+                <div className="flex items-center gap-3">
+                    <StripeButton leadId={id} amount={estimatedCost} name={lead.name} />
+                    <PrintButton />
+                </div>
             </div>
 
             {/* A4 Paper Container - 100% Branco Imaculado na Impressão */}

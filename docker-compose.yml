@@ -1,0 +1,31 @@
+# Ambiente LOCAL de desenvolvimento e testes do 77xp OS.
+# Produção continua na Vercel: este arquivo não participa do deploy.
+#
+# Primeira vez (instala as dependências Linux num volume separado do Windows):
+#   docker compose run --rm app npm ci
+#
+# Dia a dia:
+#   docker compose run --rm app npm test         # testes unitários (Vitest)
+#   docker compose run --rm app npm run lint
+#   docker compose run --rm app npm run build
+#   docker compose up app                         # next dev em http://localhost:3000
+services:
+  app:
+    image: node:24-bookworm-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+      - next_build:/app/.next
+    environment:
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Valores falsos, só para rodar localmente. Nenhuma chave real entra aqui.
+      NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: local-anon-key
+    ports:
+      - "3000:3000"
+    command: npm run dev -- --hostname 0.0.0.0
+
+volumes:
+  node_modules:
+  next_build:

@@ -13,6 +13,8 @@ export default defineConfig({
     retries: process.env.CI ? 2 : 0,
     workers: process.env.CI ? 1 : undefined,
     reporter: process.env.CI ? 'list' : 'html',
+    // O "next dev" compila cada página na primeira visita: a troca de página pode levar mais de 5 s.
+    expect: { timeout: 15_000 },
 
     use: {
         /* Base URL para uso em navegações do tipo `await page.goto('/')`. */
@@ -20,6 +22,10 @@ export default defineConfig({
 
         /* Recolhe rastros e erros em falhas. */
         trace: 'on-first-retry',
+
+        /* Como os clientes da 77xp: navegador em português, no horário de Brasília. */
+        locale: 'pt-BR',
+        timezoneId: 'America/Sao_Paulo',
     },
 
     projects: [

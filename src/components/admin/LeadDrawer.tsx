@@ -1,27 +1,42 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BaseLead } from "./KanbanBoard";
+import type { BaseLead } from "./KanbanBoard";
 import { X, Calendar, Clock, Bot, PlusSquare, ArrowRight, Activity, Zap, Focus, ShieldCheck } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ScheduleMeetingForm } from "./ScheduleMeetingForm";
+import { AgendarReuniaoForm } from "./AgendarReuniaoForm";
 import { SalesbotApprovalQueue } from "./SalesbotApprovalQueue";
+import { ETAPAS, nomeDaEtapa } from "./etapas";
 import { getLeadAudits } from "@/app/admin/actions";
 
 interface LeadDrawerProps {
     lead: BaseLead | null;
     onClose: () => void;
+    /** Pede a mudança de etapa (no "Perdido" o quadro abre o motivo da perda). */
+    onMover: (novaEtapa: string) => void;
 }
 
-export function LeadDrawer({ lead, onClose }: LeadDrawerProps) {
+export function LeadDrawer({ lead, onClose, onMover }: LeadDrawerProps) {
     const [realLogs, setRealLogs] = useState<any[]>([]);
+    const leadId = lead?.id;
+    const etapaAtual = lead?.status;
+
+    // Recarrega o histórico ao abrir o lead e depois de cada mudança de etapa.
+    useEffect(() => {
+        if (leadId) {
+            getLeadAudits(leadId).then(setRealLogs);
+        }
+    }, [leadId, etapaAtual]);
 
     useEffect(() => {
-        if (lead) {
-            getLeadAudits(lead.id).then(setRealLogs);
-        }
-    }, [lead]);
+        if (!leadId) return;
+        const fecharComEsc = (evento: KeyboardEvent) => {
+            if (evento.key === "Escape") onClose();
+        };
+        document.addEventListener("keydown", fecharComEsc);
+        return () => document.removeEventListener("keydown", fecharComEsc);
+    }, [leadId, onClose]);
 
     if (!lead) return null;
 
@@ -67,14 +82,39 @@ export function LeadDrawer({ lead, onClose }: LeadDrawerProps) {
             <div className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-40 transition-opacity" onClick={onClose} />
 
             {/* Drawer */}
-            <div className="fixed right-0 top-0 h-full w-full max-w-md bg-neutral-900 border-l border-white/10 z-50 shadow-2xl flex flex-col transform transition-transform duration-300 overflow-y-auto">
-                <div className="p-6 pb-20">
-                    <button onClick={onClose} className="absolute top-4 right-4 bg-white/5 hover:bg-white/10 text-white p-2 rounded-full transition-colors">
-                        <X size={18} />
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="gaveta-lead-titulo"
+                className="fixed right-0 top-0 h-full w-full max-w-md bg-neutral-900 border-l border-white/10 z-50 shadow-2xl flex flex-col transform transition-transform duration-300 overflow-y-auto"
+            >
+                <div className="p-5 sm:p-6 pb-20">
+                    <button type="button" onClick={onClose} aria-label="Fechar" className="absolute top-4 right-4 bg-white/5 hover:bg-white/10 text-white p-2 rounded-full transition-colors">
+                        <X size={18} aria-hidden />
                     </button>
 
-                    <h2 className="text-2xl font-black text-white mb-1 pr-10">{lead.name}</h2>
-                    <p className="text-white/40 text-sm mb-6">{lead.email}</p>
+                    <h2 id="gaveta-lead-titulo" className="text-2xl font-black text-white mb-1 pr-10 break-words">{lead.name}</h2>
+                    <p className="text-white/40 text-sm mb-6 break-all">{lead.email}</p>
+
+                    {/* Mudar de etapa sem arrastar: é o jeito que funciona no celular */}
+                    <div className="mb-8">
+                        <label htmlFor="gaveta-mover-para" className="block text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2">
+                            Mover para
+                        </label>
+                        <select
+                            id="gaveta-mover-para"
+                            value=""
+                            onChange={(e) => e.target.value && onMover(e.target.value)}
+                            className="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-[var(--color-primary)]"
+                        >
+                            <option value="">Etapa atual: {nomeDaEtapa(lead.status)} — escolher outra…</option>
+                            {ETAPAS.filter((etapa) => etapa.key !== (lead.status || "NOVO")).map((etapa) => (
+                                <option key={etapa.key} value={etapa.key}>
+                                    {etapa.nome}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4 mb-8">
                         <div className="bg-black/50 p-4 rounded-2xl border border-white/5">
@@ -91,7 +131,9 @@ export function LeadDrawer({ lead, onClose }: LeadDrawerProps) {
                     <SalesbotApprovalQueue lead={lead} />
 
                     {/* Form de Agendamento */}
-                    <ScheduleMeetingForm leadId={lead.id} />
+                    <div className="mb-8">
+                        <AgendarReuniaoForm leadId={lead.id} />
+                    </div>
 
                     {/* Operational Triggers */}
                     <div className="flex gap-4 mb-8">
@@ -143,7 +185,7 @@ export function LeadDrawer({ lead, onClose }: LeadDrawerProps) {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-[10px] uppercase font-bold text-white/40 pt-1">
-                                        Estágio Atual: {lead.status}
+                                        Estágio Atual: {nomeDaEtapa(lead.status)}
                                     </p>
                                 </div>
                             </div>

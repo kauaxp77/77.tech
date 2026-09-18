@@ -37,29 +37,29 @@ export default async function ProposalPage({ params }: { params: Promise<{ id: s
     }
 
     return (
-        <div className="min-h-screen bg-neutral-900 py-10 print:bg-white print:py-0 font-sans">
+        <div className="bg-neutral-900 py-4 sm:py-10 print:bg-white print:py-0 font-sans">
             {/* Controller HUD (Escondido no PDF) */}
-            <div className="max-w-[210mm] mx-auto mb-6 flex justify-between items-center print:hidden bg-white/5 border border-white/10 p-5 rounded-3xl backdrop-blur-md">
+            <div className="max-w-[210mm] mx-auto mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden bg-white/5 border border-white/10 p-5 rounded-3xl backdrop-blur-md">
                 <div>
                     <h2 className="text-white font-bold">Proposta Comercial [Padrão 77XP]</h2>
                     <p className="text-white/50 text-sm">Design otimizado formato A4. Pressione Baixar e salve como PDF.</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <StripeButton leadId={id} amount={estimatedCost} name={lead.name} />
                     <PrintButton />
                 </div>
             </div>
 
             {/* A4 Paper Container - 100% Branco Imaculado na Impressão */}
-            <div className="max-w-[210mm] min-h-[297mm] flex flex-col mx-auto bg-white p-[20mm] shadow-2xl text-neutral-900 print:shadow-none print:m-0 print:p-[10mm]">
+            <div className="max-w-[210mm] sm:min-h-[297mm] print:min-h-[297mm] flex flex-col mx-auto bg-white p-5 sm:p-[20mm] shadow-2xl text-neutral-900 print:shadow-none print:m-0 print:p-[10mm]">
 
                 {/* Header Timbrado Oficial */}
-                <header className="flex justify-between items-center mb-16 pb-8 border-b-2 border-neutral-100 shrink-0">
+                <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-10 sm:mb-16 pb-8 border-b-2 border-neutral-100 shrink-0">
                     <div>
-                        <h1 className="text-4xl font-black tracking-tighter text-neutral-900">77XP<span className="text-emerald-500">.TECH</span></h1>
+                        <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-neutral-900">77XP<span className="text-emerald-500">.TECH</span></h1>
                         <p className="text-neutral-500 font-medium text-sm tracking-widest uppercase mt-1">Software Engenharia & B2B Solutions</p>
                     </div>
-                    <div className="text-right text-xs text-neutral-500 space-y-1 font-mono">
+                    <div className="sm:text-right text-xs text-neutral-500 space-y-1 font-mono">
                         <p className="font-bold text-neutral-900">PROPOSTA C-LEVEL</p>
                         <p>DOC ID: #{String(Math.floor(Math.random() * 10000)).padStart(5, '0')}</p>
                         <p>DATA: {new Date().toLocaleDateString('pt-BR')}</p>
@@ -72,9 +72,9 @@ export default async function ProposalPage({ params }: { params: Promise<{ id: s
                     <section>
                         <h2 className="uppercase tracking-widest text-xs font-bold text-emerald-600 mb-2 border-l-4 border-emerald-500 pl-3">Apresentado Para</h2>
                         <div className="pl-4">
-                            <h3 className="text-3xl font-black text-neutral-900">{lead.name}</h3>
+                            <h3 className="text-2xl sm:text-3xl font-black text-neutral-900 break-words">{lead.name}</h3>
                             <p className="text-neutral-600 font-medium text-lg">{lead.company || "Pessoa Física / Empreendimento Independente"}</p>
-                            <p className="text-neutral-400 text-sm mt-1">{lead.email}</p>
+                            <p className="text-neutral-400 text-sm mt-1 break-all">{lead.email}</p>
                         </div>
                     </section>
 
@@ -94,7 +94,7 @@ export default async function ProposalPage({ params }: { params: Promise<{ id: s
                     {/* Escopo de Trabalho & Ferramentas */}
                     <section>
                         <h2 className="uppercase tracking-widest text-xs font-bold text-emerald-600 mb-4 border-l-4 border-emerald-500 pl-3">Plano de Execução (Roadmap)</h2>
-                        <div className="grid grid-cols-2 gap-6 pl-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pl-4">
                             <div className="flex gap-4">
                                 <div className="mt-1"><Settings2 className="text-emerald-500" size={20} /></div>
                                 <div>
@@ -130,14 +130,14 @@ export default async function ProposalPage({ params }: { params: Promise<{ id: s
                     <section className="pt-6 pb-8">
                         <h2 className="uppercase tracking-widest text-xs font-bold text-emerald-600 mb-4 flex items-center gap-2"><Calculator size={16} /> Estimativa de Investimento C-Level</h2>
 
-                        <div className="bg-neutral-900 rounded-3xl p-8 mb-4 shadow-xl">
-                            <div className="flex justify-between items-center text-white">
+                        <div className="bg-neutral-900 rounded-3xl p-5 sm:p-8 mb-4 shadow-xl">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 text-white">
                                 <div>
                                     <h4 className="font-bold text-xl">Arquitetura de Software Total</h4>
                                     <p className="text-neutral-400 text-sm">Handover Completo (+ Propriedade do Código-Fonte)</p>
                                 </div>
-                                <div className="text-right">
-                                    <span className="text-4xl font-black text-emerald-400">
+                                <div className="sm:text-right">
+                                    <span className="text-3xl sm:text-4xl font-black text-emerald-400">
                                         R$ {estimatedCost.toLocaleString('pt-BR')},00
                                     </span>
                                 </div>
@@ -150,13 +150,13 @@ export default async function ProposalPage({ params }: { params: Promise<{ id: s
                 </div>
 
                 {/* Footer Assinatura e Dados Finais (Empurrado para baixo elegantemente) */}
-                <div className="mt-auto border-t-2 border-neutral-100 flex pt-8 justify-between items-end shrink-0">
+                <div className="mt-auto border-t-2 border-neutral-100 flex flex-col sm:flex-row gap-4 pt-8 sm:justify-between sm:items-end shrink-0">
                     <div>
                         <h4 className="font-black text-neutral-900 text-lg">77XP TECH</h4>
                         <p className="text-sm text-neutral-500 font-medium">Top Tier Software Engineering</p>
                         <p className="text-xs text-neutral-400">hi@77.tech | https://77.tech</p>
                     </div>
-                    <div className="text-right">
+                    <div className="sm:text-right">
                         <img src="https://i.imgur.com/K5b9M47.png" alt="77xp Signature" className="h-8 opacity-40 print:opacity-100 invert print:invert-0 ml-auto" />
                     </div>
                 </div>

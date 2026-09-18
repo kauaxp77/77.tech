@@ -1,9 +1,9 @@
 import React from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { Activity, BarChart3, TrendingUp, Users, DollarSign, Target, PieChart, Focus, Download } from 'lucide-react'
-import { formatDistanceToNow, format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
-import { DeleteMeetingButton } from "@/components/admin/DeleteMeetingButton";
+import { formatDistanceToNow } from 'date-fns'
+import { formatarDataHora } from "@/lib/datas";
+import type { Reuniao } from "@/components/admin/ListaDeReunioes";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic'
@@ -44,16 +44,15 @@ export default async function AdminDashboardPage() {
         .select('*')
         .order('created_at', { ascending: false })
 
-    // Graceful Fetching for Meetings Dashboard Injection
-    const { data: rawMeetings, error: meetError } = await supabase
+    // Só as 3 próximas reuniões: a agenda completa fica na aba Reuniões.
+    const { data: proximas } = await supabase
         .from('meetings')
-        .select(`
-            *,
-            leads(name, company, project_type)
-        `)
+        .select('id, title, meeting_date, platform, meeting_link, leads(name, company)')
+        .gte('meeting_date', new Date().toISOString())
         .order('meeting_date', { ascending: true })
+        .limit(3)
 
-    const meetings = rawMeetings || []; // Fallback seguro (Se o db não tiver a tabela, retorna null e array vazio)
+    const proximasReunioes = (proximas ?? []) as unknown as Reuniao[]; // sem a tabela, fica vazio
 
     if (error) {
         return <div className="text-red-500">Falha ao computar relatórios: {error.message}</div>
@@ -139,14 +138,14 @@ export default async function AdminDashboardPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent mb-2">Business Operations</h1>
-                    <p className="text-white/50 text-sm">Cockpit Executivo Fase 5: Monitorando Pipeline e Conversão de Receita.</p>
+                    <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent mb-2">Visão geral</h1>
+                    <p className="text-white/50 text-sm">Pipeline, conversão e receita da operação.</p>
                 </div>
 
                 <a
                     href="/api/admin/export/csv"
                     download="77xp_leads.csv"
-                    className="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(16,185,129,0.1)] active:scale-95"
+                    className="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(16,185,129,0.1)] active:scale-95"
                 >
                     <Download size={16} /> Exportar Excel CSV
                 </a>
@@ -154,18 +153,18 @@ export default async function AdminDashboardPage() {
 
             {/* SLA Alert Banner */}
             {stagnantLeads.length > 0 && (
-                <div className="bg-red-500/10 border border-red-500/50 rounded-2xl p-4 flex items-center justify-between shadow-[0_0_25px_rgba(239,68,68,0.1)]">
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center animate-pulse">
+                <div className="bg-red-500/10 border border-red-500/50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_0_25px_rgba(239,68,68,0.1)]">
+                    <div className="flex items-start sm:items-center gap-4">
+                        <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center animate-pulse shrink-0">
                             <Focus size={20} className="text-red-400" />
                         </div>
                         <div>
                             <h3 className="text-red-400 font-bold text-sm uppercase tracking-widest">Alerta de SLA (Gargalo no Funil)</h3>
-                            <p className="text-white/70 text-sm mt-1">Você tem <strong className="text-white">{stagnantLeads.length} leads estagnados</strong> há mais de 15 dias no seu CRM sem conversão ou contato recente. Verifique a gaveta.</p>
+                            <p className="text-white/70 text-sm mt-1">Você tem <strong className="text-white">{stagnantLeads.length} leads estagnados</strong> há mais de 15 dias no seu CRM sem conversão ou contato recente.</p>
                         </div>
                     </div>
-                    <Link href="/admin/pipeline" className="hidden md:flex bg-red-500/20 hover:bg-red-500/30 text-red-300 font-bold text-xs uppercase tracking-widest px-4 py-2 rounded-xl transition-all">
-                        Resolver Agora
+                    <Link href="/admin/crm" className="flex justify-center shrink-0 bg-red-500/20 hover:bg-red-500/30 text-red-300 font-bold text-xs uppercase tracking-widest px-4 py-2.5 rounded-xl transition-all">
+                        Resolver agora
                     </Link>
                 </div>
             )}
@@ -218,12 +217,12 @@ export default async function AdminDashboardPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Visual Funnel Panel */}
-                <div className="lg:col-span-2 glass bg-white/5 border border-white/10 rounded-3xl p-8">
+                <div className="lg:col-span-2 glass bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
                     <h2 className="text-lg font-bold text-white mb-8 flex items-center gap-2"><Filter size={18} className="text-white/50" /> Funil Comercial</h2>
 
                     <div className="space-y-6">
                         <div className="relative">
-                            <div className="flex justify-between text-sm mb-2">
+                            <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-sm mb-2">
                                 <span className="font-bold text-white">Leads Capturados</span>
                                 <span className="text-white/50">{totalLeads} unid. (100%)</span>
                             </div>
@@ -233,7 +232,7 @@ export default async function AdminDashboardPage() {
                         </div>
 
                         <div className="relative">
-                            <div className="flex justify-between text-sm mb-2">
+                            <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-sm mb-2">
                                 <span className="font-bold text-white flex items-center gap-2">↓ Leads Qualificados <span className="text-[10px] text-green-400 font-mono tracking-widest">{conversionQualificado}% retidos</span></span>
                                 <span className="text-white/50">{qualitificados} unid.</span>
                             </div>
@@ -243,7 +242,7 @@ export default async function AdminDashboardPage() {
                         </div>
 
                         <div className="relative">
-                            <div className="flex justify-between text-sm mb-2">
+                            <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-sm mb-2">
                                 <span className="font-bold text-white flex items-center gap-2">↓ Em Negociação <span className="text-[10px] text-green-400 font-mono tracking-widest">{conversionProposta}% retidos</span></span>
                                 <span className="text-white/50">{leadsEmNegociacao} unid.</span>
                             </div>
@@ -253,7 +252,7 @@ export default async function AdminDashboardPage() {
                         </div>
 
                         <div className="relative pt-4 border-t border-white/10">
-                            <div className="flex justify-between text-sm mb-2">
+                            <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-sm mb-2">
                                 <span className="font-bold text-white flex items-center gap-2">🏁 Negócios Fechados <span className="text-[10px] text-emerald-400 font-mono tracking-widest">{conversionGlobal}% GLOBAL TX</span></span>
                                 <span className="text-white/50 font-bold">{leadsFechados} vitórias (R$ {(revenueClosed / 1000).toFixed(1)}k)</span>
                             </div>
@@ -265,7 +264,7 @@ export default async function AdminDashboardPage() {
                 </div>
 
                 {/* Sidebar Analytics Panel */}
-                <div className="glass bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col gap-8">
+                <div className="glass bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8 flex flex-col gap-8">
 
                     {/* Product Conversion Analytics */}
                     <div>
@@ -316,52 +315,32 @@ export default async function AdminDashboardPage() {
                 </div>
             </div>
 
-            {/* Global Calendar Master Integration */}
-            <div className="glass bg-white/5 border border-white/10 rounded-3xl p-8 mb-10">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2"><Calendar size={18} className="text-white/50" /> Agenda Semanal Master</h2>
-                    <span className="text-xs uppercase tracking-widest text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">{meetings.length} Reuniões Lyncadas</span>
+            {/* Próximas reuniões (a agenda completa fica na aba Reuniões) */}
+            <section aria-label="Próximas reuniões" className="glass bg-white/5 border border-white/10 rounded-3xl p-5 sm:p-8">
+                <div className="flex items-center justify-between gap-4 mb-6">
+                    <h2 className="text-lg font-bold text-white flex items-center gap-2"><Calendar size={18} className="text-white/50" /> Próximas reuniões</h2>
+                    <Link href="/admin/reunioes" className="shrink-0 text-xs uppercase tracking-widest text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors">
+                        Ver todas
+                    </Link>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {meetings.length === 0 ? (
-                        <div className="col-span-full py-16 flex flex-col items-center justify-center text-white/30 border border-white/5 border-dashed rounded-2xl">
-                            <Calendar size={32} className="mb-3 opacity-50" />
-                            <p className="text-sm font-medium">Nenhuma reunião com Prospects atrelada nesta semana.</p>
-                            <p className="text-xs mt-1">(Certifique-se de ter rodado o script SQL da Sprint 9.5)</p>
-                        </div>
-                    ) : (
-                        meetings.map((meet: any) => (
-                            <div key={meet.id} className="bg-black/40 border border-white/5 p-5 rounded-2xl flex flex-col gap-3 group hover:border-emerald-500/30 transition-colors">
-                                <div className="flex justify-between items-start gap-2">
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold mb-1">{meet.status || 'SCHEDULED'}</p>
-                                        <h3 className="text-white font-bold text-sm truncate">{meet.title}</h3>
-                                    </div>
-                                    <div className="flex items-center gap-2 shrink-0">
-                                        <div className="h-8 w-8 bg-white/5 rounded-xl flex items-center justify-center border border-white/10">
-                                            <Video size={14} className="text-white/70" />
-                                        </div>
-                                        <DeleteMeetingButton meetingId={meet.id} />
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-xs text-white/50 flex items-center gap-2"><Clock size={12} /> {format(new Date(meet.meeting_date), "dd 'de' MMM, HH:mm", { locale: ptBR })}</p>
-                                    <p className="text-xs text-white/30 flex items-center gap-2 truncate"><Users size={12} /> {meet.leads?.name} ({meet.leads?.company || 'PF'})</p>
-                                </div>
-                                {meet.meeting_link && (
-                                    <a href={meet.meeting_link} target="_blank" className="mt-2 text-center text-xs font-bold text-emerald-300 bg-emerald-900/30 py-2 rounded-lg hover:bg-emerald-800/40 transition-colors">
-                                        Entrar na Call
-                                    </a>
-                                )}
-                            </div>
-                        ))
-                    )}
-                </div>
-            </div>
+                {proximasReunioes.length === 0 ? (
+                    <p className="text-sm text-white/40 py-8 text-center border border-dashed border-white/10 rounded-2xl">Nenhuma reunião marcada.</p>
+                ) : (
+                    <ul className="grid gap-3 md:grid-cols-3">
+                        {proximasReunioes.map((reuniao) => (
+                            <li key={reuniao.id} className="bg-black/40 border border-white/5 p-4 rounded-2xl space-y-1 min-w-0">
+                                <p className="text-white font-bold text-sm break-words">{reuniao.title}</p>
+                                <p className="text-xs text-white/50 flex items-center gap-1.5"><Clock size={12} /> {formatarDataHora(reuniao.meeting_date)}</p>
+                                <p className="text-xs text-white/30 flex items-center gap-1.5 break-words"><Users size={12} /> {reuniao.leads?.name} ({reuniao.leads?.company || 'PF'})</p>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </section>
         </div>
     )
 }
 
 // Icon Wrapper for missing icons in this file scope since lucide-react doesn't export "Flame" directly sometimes (wait, it does, but just in case for Filter)
-import { Filter, Flame, Calendar, Clock, Video } from 'lucide-react';
+import { Filter, Flame, Calendar, Clock } from 'lucide-react';

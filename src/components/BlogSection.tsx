@@ -20,7 +20,7 @@ interface Props {
 
 export function BlogSection({ posts }: Props) {
     return (
-        <section className="py-32 relative">
+        <section className="py-16 md:py-32 relative">
             <div className="container mx-auto px-6 lg:px-12">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

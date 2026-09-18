@@ -7,7 +7,6 @@
     <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
     <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
-    <img src="https://img.shields.io/badge/Sanity-F03E2F?style=for-the-badge&logo=sanity&logoColor=white" alt="Sanity CMS" />
     <img src="https://img.shields.io/badge/Stripe-626CD9?style=for-the-badge&logo=Stripe&logoColor=white" alt="Stripe" />
     <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" />
   </p>
@@ -29,8 +28,8 @@ Dividido em:
 ### 1.1 Motor de Captação B2B (Calculadora SaaS)
 No lugar de um formulário monótono, há um simulador visual de projeto. O cliente escolhe seu escopo, preenche as dores de negócio, fornece contato e recebe uma prévia simulada de preço. Ao ser submetido, injeta dados ricos no CRM.
 
-### 1.2 Sanity Headless CMS
-Cases de Portfólio e Articles de Blog servidos via motor CMS autônomo, permitindo relatórios em tempo real de estatísticas e tecnologias dos cases, perfeitamente integrados com o Design System.
+### 1.2 Conteúdo (Cases e Blog)
+Cases de Portfólio e Artigos do Blog ficam em `src/lib/data.ts` e são servidos direto pelo site, sem CMS externo.
 
 ---
 

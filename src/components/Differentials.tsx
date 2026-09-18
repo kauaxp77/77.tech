@@ -33,7 +33,7 @@ const differentials = [
 
 export function Differentials() {
     return (
-        <section className="py-32 bg-[#080808] border-y border-white/5 relative overflow-hidden">
+        <section className="py-16 md:py-32 bg-[#080808] border-y border-white/5 relative overflow-hidden">
             {/* Background glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-96 bg-[var(--color-primary)] rounded-full mix-blend-screen filter blur-[150px] opacity-10 pointer-events-none"></div>
 
@@ -43,7 +43,7 @@ export function Differentials() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    className="max-w-4xl mx-auto mb-20"
+                    className="max-w-4xl mx-auto mb-10 md:mb-20"
                 >
                     <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
                         Não entregamos apenas código. <br className="hidden md:block" />

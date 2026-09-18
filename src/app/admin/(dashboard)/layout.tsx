@@ -1,24 +1,18 @@
 import React from 'react'
-import { AdminSidebar } from '@/components/admin/AdminSidebar'
+import { AdminShell } from '@/components/admin/AdminShell'
+import { createClient } from '@/lib/supabase/server'
 
 export const metadata = {
     title: 'Painel Corporativo | 77xp Tech Solutions',
 }
 
-export default function AdminLayout({
+export default async function AdminLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
-    return (
-        <div className="min-h-screen bg-black/95 flex">
-            <AdminSidebar />
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-            <main className="flex-1 ml-64 p-8 overflow-y-auto">
-                <div className="max-w-7xl mx-auto">
-                    {children}
-                </div>
-            </main>
-        </div>
-    )
+    return <AdminShell emailDoAdmin={user?.email}>{children}</AdminShell>
 }

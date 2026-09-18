@@ -50,3 +50,10 @@ next-env.d.ts
 
 # logs locais (nunca versionar)
 *.log
+
+# fotos das telas tiradas pelo scripts/dev/capturar-telas.mjs
+.capturas/
+
+# resultados do Playwright (gerados a cada execução)
+/test-results/
+/playwright-report/

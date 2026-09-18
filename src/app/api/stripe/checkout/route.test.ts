@@ -20,11 +20,19 @@ const admin: User = {
     aud: 'authenticated',
     role: 'authenticated',
     email: 'admin@77xp.com',
-    app_metadata: { provider: 'email', providers: ['email'] },
-    user_metadata: { role: 'admin' },
+    // Papel gravado pelo servidor: é o único que vale.
+    app_metadata: { provider: 'email', providers: ['email'], role: 'admin' },
+    user_metadata: {},
     created_at: '2026-08-17T00:00:00Z',
 }
-const naoAdmin: User = { ...admin, id: 'a1b2c3d4-0000-4000-8000-000000000002', email: 'visitante@exemplo.com', user_metadata: {} }
+const naoAdmin: User = {
+    ...admin,
+    id: 'a1b2c3d4-0000-4000-8000-000000000002',
+    email: 'visitante@exemplo.com',
+    app_metadata: { provider: 'email', providers: ['email'] },
+}
+// Se deu o papel de admin no próprio perfil (user_metadata é editável pelo usuário).
+const intruso: User = { ...naoAdmin, id: 'a1b2c3d4-0000-4000-8000-000000000003', email: 'intruso@exemplo.com', user_metadata: { role: 'admin' } }
 
 function sessaoComo(user: User | null) {
     vi.mocked(createClient).mockResolvedValue({
@@ -74,6 +82,15 @@ describe('POST /api/stripe/checkout', () => {
 
     it('recusa (403) usuário logado que não é admin, sem criar cobrança', async () => {
         sessaoComo(naoAdmin)
+
+        const resposta = await POST(pedido({ leadId: LEAD_ID, amount: 4000, name: 'Cliente' }))
+
+        expect(resposta.status).toBe(403)
+        expect(criarSessao).not.toHaveBeenCalled()
+    })
+
+    it('recusa (403) quem só se declarou admin no próprio perfil, sem criar cobrança', async () => {
+        sessaoComo(intruso)
 
         const resposta = await POST(pedido({ leadId: LEAD_ID, amount: 4000, name: 'Cliente' }))
 

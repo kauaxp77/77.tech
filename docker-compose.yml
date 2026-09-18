@@ -1,14 +1,20 @@
 # Ambiente LOCAL de desenvolvimento e testes do 77xp OS.
 # Produção continua na Vercel: este arquivo não participa do deploy.
 #
-# Primeira vez (instala as dependências Linux num volume separado do Windows):
-#   docker compose run --rm app npm ci
+# 1) Banco local (Supabase em containers), na raiz do projeto:
+#      npx supabase start          # liga (a 1ª vez baixa as imagens)
+#      npx supabase db reset       # recria tabelas + dados de exemplo (supabase/seed.sql)
+#      Painel do banco: http://localhost:54323
 #
-# Dia a dia:
-#   docker compose run --rm app npm test         # testes unitários (Vitest)
-#   docker compose run --rm app npm run lint
-#   docker compose run --rm app npm run build
-#   docker compose up app                         # next dev em http://localhost:3000
+# 2) Site:
+#      docker compose run --rm app npm ci     # 1ª vez: instala as dependências (Linux)
+#      docker compose up app                  # site em http://localhost:3000
+#      docker compose run --rm app npm test   # testes unitários (Vitest)
+#      docker compose run --rm -v next_prod:/app/.next app npm run build
+#          ↑ build de produção numa pasta separada: não pode dividir o .next com o
+#            "next dev", senão o site de desenvolvimento passa a dar 404 em rotas como /admin/proposal/[id].
+#
+# Contas de teste (só existem no banco local): veja supabase/seed.sql.
 services:
   app:
     image: node:24-bookworm-slim
@@ -19,12 +25,39 @@ services:
       - next_build:/app/.next
     environment:
       NEXT_TELEMETRY_DISABLED: "1"
-      # Valores falsos, só para rodar localmente. Nenhuma chave real entra aqui.
+      # No Windows o container não recebe aviso de arquivo alterado: verifica periodicamente.
+      WATCHPACK_POLLING: "true"
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      # Supabase LOCAL. Estas são as chaves públicas de demonstração do Supabase local
+      # (emissor "supabase-demo"): não funcionam em nenhum projeto real.
       NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: local-anon-key
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+      SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
     ports:
       - "3000:3000"
-    command: npm run dev -- --hostname 0.0.0.0
+    # A ponte faz "localhost:54321" (o Supabase local) funcionar também dentro do container.
+    command: sh -c "node scripts/dev/ponte-supabase.mjs & npm run dev -- --hostname 0.0.0.0"
+
+  # Robô de testes de ponta a ponta (Playwright), usando a mesma rede do site:
+  # "localhost:3000" é o site e "localhost:54321" é a ponte para o Supabase local.
+  #   docker compose up -d app
+  #   docker compose run --rm e2e                                   # todos os testes E2E
+  #   docker compose run --rm e2e node scripts/dev/capturar-telas.mjs  # fotos no celular
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.62.1-noble
+    profiles: ["e2e"]
+    working_dir: /app
+    network_mode: service:app
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    environment:
+      CI: "1"
+      PLAYWRIGHT_BASE_URL: http://localhost:3000
+      # Para os testes prepararem e limparem dados no Supabase LOCAL (chave de demonstração).
+      SUPABASE_URL: http://localhost:54321
+      SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+    command: npx playwright test
 
 volumes:
   node_modules:

@@ -20,14 +20,14 @@ interface Props {
 
 export function Cases({ casesItems }: Props) {
     return (
-        <section id="cases" className="py-32 bg-[#030303] border-y border-white/5">
+        <section id="cases" className="py-16 md:py-32 bg-[#030303] border-y border-white/5">
             <div className="container mx-auto px-6 lg:px-12">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    className="mb-20 text-center"
+                    className="mb-10 md:mb-20 text-center"
                 >
                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                         Projetos que transformam tecnologia em <span className="text-[var(--color-primary)]">resultado.</span>

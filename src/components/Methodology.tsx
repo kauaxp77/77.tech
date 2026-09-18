@@ -5,14 +5,14 @@ import { methodologyFiles } from "@/lib/data";
 
 export function Methodology() {
     return (
-        <section id="methodology" className="py-32 relative">
+        <section id="methodology" className="py-16 md:py-32 relative">
             <div className="container mx-auto px-6 lg:px-12">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    className="mb-20 text-center md:text-left"
+                    className="mb-10 md:mb-20 text-center md:text-left"
                 >
                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                         Do problema ao produto.

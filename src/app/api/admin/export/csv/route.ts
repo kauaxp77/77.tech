@@ -1,12 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { isAdmin } from "@/lib/auth/isAdmin";
 
 export async function GET(request: Request) {
     const supabase = await createClient();
 
     // Auth Check
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user || user.user_metadata?.role !== 'admin') {
+    if (!isAdmin(user)) {
         return new NextResponse("Unauthorized. Credenciais Classe Administrativa requeridas.", { status: 401 });
     }
 

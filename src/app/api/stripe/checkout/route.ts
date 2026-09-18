@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { isAdmin } from '@/lib/auth/isAdmin';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
     apiVersion: '2025-02-24.acacia' as any
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
     if (!user) {
         return new NextResponse('Unauthorized', { status: 401 });
     }
-    if (user.user_metadata?.role !== 'admin') {
+    if (!isAdmin(user)) {
         return new NextResponse('Forbidden', { status: 403 });
     }
 

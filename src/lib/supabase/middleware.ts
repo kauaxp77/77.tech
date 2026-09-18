@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { isAdmin } from '@/lib/auth/isAdmin'
 
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
@@ -41,8 +42,8 @@ export async function updateSession(request: NextRequest) {
             return NextResponse.redirect(url)
         }
 
-        // RBAC validation: only user_metadata.role === 'admin' can access
-        if (user.user_metadata?.role !== 'admin') {
+        // RBAC: só app_metadata.role === 'admin' (gravado pelo servidor) entra
+        if (!isAdmin(user)) {
             const url = request.nextUrl.clone()
             url.pathname = '/'
             return NextResponse.redirect(url)
@@ -51,7 +52,7 @@ export async function updateSession(request: NextRequest) {
 
     // Prevent logged admins from viewing the login screen
     if (user && isLoginPath) {
-        if (user.user_metadata?.role === 'admin') {
+        if (isAdmin(user)) {
             const url = request.nextUrl.clone()
             url.pathname = '/admin'
             return NextResponse.redirect(url)

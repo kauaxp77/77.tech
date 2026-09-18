@@ -15,6 +15,7 @@ export async function login(formData: FormData) {
     const { error } = await supabase.auth.signInWithPassword(data)
 
     if (error) {
+        // Só loga: o disco da Vercel é somente leitura, e o log da função já registra isso.
         console.error('Login action error:', error.message)
         redirect('/admin/login?error=true')
     }

@@ -6,9 +6,11 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET(request: Request) {
-    // Vercel CRON Request Verification via Header
+    // Vercel CRON Request Verification via Header.
+    // Sem CRON_SECRET configurado a rota fica fechada: nunca roda aberta ao público.
+    const cronSecret = process.env.CRON_SECRET;
     const authHeader = request.headers.get('authorization');
-    if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
         return new NextResponse('Unauthorized Cron Request', { status: 401 });
     }
 

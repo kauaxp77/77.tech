@@ -7,7 +7,7 @@ test('Must render main SEO attributes and Brand visibility', async ({ page }) =>
     await expect(page).toHaveTitle(/77xp|Tech Solutions/i);
 
     // Validate hero rendering ensuring the glassmorphism CTA's are clickable
-    const mainCTA = page.getByRole('link', { name: /Estimativa|Start/i }).first();
+    const mainCTA = page.getByRole('link', { name: /Conhecer Soluções|Acessar Calculadora/i }).first();
     await expect(mainCTA).toBeVisible();
 });
 
@@ -15,7 +15,7 @@ test('Typeform Calculator Wizard Navigation Integration', async ({ page }) => {
     await page.goto('/');
 
     // Find the primary entry point to module B (Calculadora)
-    const calcLink = page.getByRole('link', { name: /Estimativa Técnica/i }).first();
+    const calcLink = page.getByRole('link', { name: /Acessar Calculadora/i }).first();
     await calcLink.click();
 
     // Validate Router injected context

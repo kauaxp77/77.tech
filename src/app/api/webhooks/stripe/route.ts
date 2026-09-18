@@ -1,27 +1,31 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { EventBus } from '@/lib/events';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
     apiVersion: '2025-02-24.acacia' as any
 });
 
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
 export async function POST(req: Request) {
-    const body = await req.text();
-    const sig = req.headers.get('stripe-signature');
+    // Sem segredo não há como provar que o evento veio do Stripe: recusa tudo.
+    // (500 faz o Stripe reenviar; depois de configurado, os reenvios passam.)
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!endpointSecret) {
+        console.error('❌ STRIPE_WEBHOOK_SECRET não configurado: webhook recusado.');
+        return new NextResponse('Webhook secret not configured', { status: 500 });
+    }
 
+    const sig = req.headers.get('stripe-signature');
+    if (!sig) {
+        return new NextResponse('Missing stripe-signature header', { status: 400 });
+    }
+
+    const body = await req.text();
     let event: Stripe.Event;
 
     try {
-        if (!sig || !endpointSecret) {
-            console.warn("⚠️ Stripe Webhook Secret não configurado ou Assinatura Inexistente. Rodando em modo Inseguro para Desenvolvimento.");
-            event = JSON.parse(body); // Fallback local
-        } else {
-            event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
-        }
+        event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
     } catch (err: any) {
         console.error(`❌ Webhook Error: ${err.message}`);
         return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
@@ -35,17 +39,19 @@ export async function POST(req: Request) {
         console.log(`💰 [Stripe] Pagamento confirmado! Sessão ID: ${session.id} | Lead Reference: ${leadId}`);
 
         if (leadId) {
-            const supabase = await createClient();
-
-            // 1. Trancar Oportunidade como FECHADA no Backend usando Server Role
-            // (Assumimos que o RBAC não barra server-to-server aqui, mas passaremos cookie bypass se necessário)
-            const { error: dbError } = await supabase
+            // 1. Trancar Oportunidade como FECHADA com a chave de serviço: o evento já teve
+            // a assinatura conferida, e o cliente anônimo seria barrado pelo RLS em silêncio.
+            const supabase = createAdminClient();
+            const { data: updatedLeads, error: dbError } = await supabase
                 .from('leads')
                 .update({ status: 'FECHADO' })
-                .eq('id', leadId);
+                .eq('id', leadId)
+                .select('id');
 
             if (dbError) {
                 console.error("Erro ao atualizar Lead:", dbError.message);
+            } else if (!updatedLeads?.length) {
+                console.error(`Lead ${leadId} não encontrado para o pagamento da sessão ${session.id}.`);
             }
 
             // 2. Disparar Gatilho Assíncrono para o EventBus 2.0

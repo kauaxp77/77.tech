@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export function CTA() {
     return (
-        <section className="relative py-32 overflow-hidden border-t border-white/5 bg-[#050505]">
+        <section className="relative py-16 md:py-32 overflow-hidden border-t border-white/5 bg-[#050505]">
             {/* Abstract Background for CTA */}
             <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
                 <div className="w-[800px] h-[800px] bg-[var(--color-primary)] rounded-full mix-blend-screen filter blur-[200px] animate-pulse" style={{ animationDuration: '6s' }}></div>

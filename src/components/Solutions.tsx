@@ -14,14 +14,14 @@ const iconMap: Record<string, React.ReactNode> = {
 
 export function Solutions() {
     return (
-        <section id="solutions" className="py-32 relative">
+        <section id="solutions" className="py-16 md:py-32 relative">
             <div className="container mx-auto px-6 lg:px-12">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    className="max-w-3xl mb-20"
+                    className="max-w-3xl mb-10 md:mb-20"
                 >
                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                         Soluções construídas <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">para crescer.</span>

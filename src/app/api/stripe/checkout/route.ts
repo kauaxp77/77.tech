@@ -1,19 +1,36 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
     apiVersion: '2025-02-24.acacia' as any
 });
 
+const CheckoutRequestSchema = z.object({
+    leadId: z.uuid(),
+    amount: z.number().positive(),
+    name: z.string().trim().min(1),
+});
+
 export async function POST(req: Request) {
+    // Só admin logado gera cobrança na conta Stripe.
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return new NextResponse('Unauthorized', { status: 401 });
+    }
+    if (user.user_metadata?.role !== 'admin') {
+        return new NextResponse('Forbidden', { status: 403 });
+    }
+
+    const parsed = CheckoutRequestSchema.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) {
+        return new NextResponse('Invalid parameters', { status: 400 });
+    }
+    const { leadId, amount, name } = parsed.data;
+
     try {
-        const { leadId, amount, name } = await req.json();
-
-        if (!leadId || !amount) {
-            return new NextResponse('Missing parameters', { status: 400 });
-        }
-
         // Criando Sessão Transparente Frictionless B2B
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card', 'boleto'],
@@ -25,7 +42,7 @@ export async function POST(req: Request) {
                             name: `Arquitetura: ${name}`,
                             description: `Pagamento de Escopo Estipulado para ${name} / ID Oportunidade: ${leadId}`
                         },
-                        unit_amount: amount * 100, // Stripe expects cents
+                        unit_amount: Math.round(amount * 100), // Stripe exige centavos inteiros
                     },
                     quantity: 1,
                 },

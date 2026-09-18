@@ -1,0 +1,11 @@
+-- V1: extensões.
+--
+-- gen_random_uuid() é nativa do PostgreSQL 13+ (fica em pg_catalog) e não
+-- depende de extensão. A pgcrypto entra para digest()/hmac() em SQL.
+--
+-- No Supabase as extensões já vêm instaladas no schema "extensions"; num
+-- PostgreSQL limpo (containers e testes) o IF NOT EXISTS instala no schema
+-- padrão. Por isso toda função nossa que chamar algo de extensão declara
+-- SET search_path = public, extensions, pg_catalog (padrão do Beto_Banco, V16)
+-- e funciona nos dois lugares.
+CREATE EXTENSION IF NOT EXISTS pgcrypto;

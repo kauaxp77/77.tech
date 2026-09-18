@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, BookOpen, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, Users, Settings, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -15,7 +15,6 @@ export function AdminSidebar() {
     const navLinks = [
         { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
         { name: 'CRM (Leads)', href: '/admin/crm', icon: Users },
-        { name: 'Sanity Studio', href: '/studio', icon: BookOpen },
     ]
 
     const handleSignOut = async () => {

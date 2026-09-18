@@ -16,7 +16,7 @@ Este documento foi moldado para fornecer uma visão absoluta (Função por Funç
 
 ### `src/services/cmsService.ts`
 - **Função**: Atua como provedor unificado de Artigos e Cases de Sucesso.
-- **Groq Fetching**: Em caso das senhas do Sanity estarem expostas ele engata o Provider do `next-sanity` fazendo cache ISR na Edge de 1 hora. Se houver falha, ele busca nativamente das variáveis Hardcoded localizadas em `src/lib/data.ts`.
+- **Fonte**: devolve os artigos e cases definidos em `src/lib/data.ts` (o Sanity CMS foi removido).
 
 ### `src/lib/estimationEngine.ts`
 - **Função**: É o cérebro calculista (Matemática Pura).

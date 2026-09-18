@@ -10,8 +10,6 @@ import { CTA } from "@/components/CTA";
 import { Footer } from "@/components/Footer";
 import { CMSService } from "@/services/cmsService";
 
-export const revalidate = 3600; // Recalcular dados do Sanity a cada 1 Hora e distribuir pelo CDN Cloud.
-
 export default async function Home() {
   const posts = await CMSService.getPosts();
   const cases = await CMSService.getCases();

@@ -84,6 +84,7 @@ export async function scheduleMeeting(leadId: string, title: string, meetingDate
         }
 
         revalidatePath('/admin');
+        revalidatePath('/admin/reunioes');
         return { success: true };
     } catch (e: any) {
         console.error('Critical Action Error:', e);
@@ -118,5 +119,6 @@ export async function deleteMeeting(meetingId: string) {
         throw new Error('Falha arquitetural ao excluir a oportunidade no CRM.');
     }
 
-    revalidatePath('/admin/dashboard');
+    revalidatePath('/admin');
+    revalidatePath('/admin/reunioes');
 }

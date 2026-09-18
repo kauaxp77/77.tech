@@ -1,0 +1,78 @@
+# Ambiente local do 77xp OS. Tudo roda em containers.
+#   docker compose up -d                   -> postgres, mailpit e api (perfil dev)
+#   docker compose run --rm backend-tests  -> suíte completa do backend (./mvnw -B verify)
+# As variáveis SMTP_* e BOOTSTRAP_OWNER_EMAIL da api passam a ser lidas nas Tarefas 10 e 11.
+name: xp77-os
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: xp77
+      POSTGRES_USER: xp77
+      POSTGRES_PASSWORD: xp77
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/01-app-role.sql:/docker-entrypoint-initdb.d/01-app-role.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xp77 -d xp77"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  api:
+    image: maven:3.9-eclipse-temurin-21
+    working_dir: /app/backend
+    command: ["./mvnw", "-B", "spring-boot:run", "-Dspring-boot.run.profiles=dev"]
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/xp77
+      DATABASE_USER: app_77xp
+      DATABASE_PASSWORD: app
+      FLYWAY_USER: xp77
+      FLYWAY_PASSWORD: xp77
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      BOOTSTRAP_OWNER_EMAIL: ${BOOTSTRAP_OWNER_EMAIL:-}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/app
+      - maven-repo:/root/.m2
+      # target/ num volume próprio: build rápido no Docker Desktop e sem disputa com os testes.
+      - api-target:/app/backend/target
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  backend-tests:
+    image: maven:3.9-eclipse-temurin-21
+    profiles: ["tests"]
+    working_dir: /app/backend
+    command: ["./mvnw", "-B", "verify"]
+    environment:
+      # O Testcontainers daqui de dentro cria containers "irmãos" no Docker do
+      # computador; as portas deles são alcançadas pelo host.
+      TESTCONTAINERS_HOST_OVERRIDE: host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./:/app
+      - maven-repo:/root/.m2
+      - tests-target:/app/backend/target
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  postgres-data:
+  maven-repo:
+  api-target:
+  tests-target:

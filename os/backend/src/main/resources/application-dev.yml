@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/xp77}
+    username: ${DATABASE_USER:app_77xp}
+    password: ${DATABASE_PASSWORD:app}
+  flyway:
+    user: ${FLYWAY_USER:xp77}
+    password: ${FLYWAY_PASSWORD:xp77}
+
+logging:
+  level:
+    com.xp77.os: DEBUG

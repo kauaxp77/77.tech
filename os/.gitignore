@@ -1,0 +1,2 @@
+# Variáveis locais lidas pelo docker compose (ex.: BOOTSTRAP_OWNER_EMAIL).
+.env

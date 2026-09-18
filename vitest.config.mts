@@ -14,5 +14,6 @@ export default defineConfig({
         clearMocks: true,
         restoreMocks: true,
         unstubEnvs: true,
+        unstubGlobals: true,
     },
 })

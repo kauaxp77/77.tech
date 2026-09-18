@@ -1,3 +1,4 @@
+import type { User } from '@supabase/supabase-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // A criação da sessão é uma chamada de rede ao Stripe: é a única parte simulada.
@@ -14,7 +15,7 @@ import { POST } from './route'
 
 const LEAD_ID = '3f1c2b4e-8a6d-4c7e-9f10-2b3c4d5e6f70'
 
-const admin = {
+const admin: User = {
     id: 'a1b2c3d4-0000-4000-8000-000000000001',
     aud: 'authenticated',
     role: 'authenticated',
@@ -23,9 +24,9 @@ const admin = {
     user_metadata: { role: 'admin' },
     created_at: '2026-08-17T00:00:00Z',
 }
-const naoAdmin = { ...admin, id: 'a1b2c3d4-0000-4000-8000-000000000002', email: 'visitante@exemplo.com', user_metadata: {} }
+const naoAdmin: User = { ...admin, id: 'a1b2c3d4-0000-4000-8000-000000000002', email: 'visitante@exemplo.com', user_metadata: {} }
 
-function sessaoComo(user: typeof admin | null) {
+function sessaoComo(user: User | null) {
     vi.mocked(createClient).mockResolvedValue({
         auth: {
             getUser: vi.fn().mockResolvedValue(

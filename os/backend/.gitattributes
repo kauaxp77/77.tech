@@ -1,0 +1,3 @@
+# Scripts executados dentro dos containers Linux: sempre LF.
+/mvnw text eol=lf
+*.sh text eol=lf

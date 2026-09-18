@@ -1,0 +1,21 @@
+# Produção (Render). Segredo nenhum tem valor padrão: faltou, a aplicação não sobe.
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    hikari:
+      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:5}
+  flyway:
+    user: ${FLYWAY_USER}
+    password: ${FLYWAY_PASSWORD}
+
+server:
+  tomcat:
+    threads:
+      max: 120
+
+logging:
+  level:
+    root: INFO
+    com.xp77.os: INFO

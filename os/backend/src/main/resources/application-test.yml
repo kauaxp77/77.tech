@@ -1,0 +1,5 @@
+# Perfil dos testes automáticos. Banco e credenciais vêm do Testcontainers
+# (PostgresTestBase); aqui ficam só valores fixos de teste.
+logging:
+  level:
+    com.xp77.os: INFO

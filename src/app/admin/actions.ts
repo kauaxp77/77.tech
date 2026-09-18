@@ -3,9 +3,22 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { EventBus } from '@/lib/events'
+import { isAdmin } from '@/lib/auth/isAdmin'
+
+const ACESSO_RESTRITO = 'Acesso restrito a administradores.'
+
+// Server actions podem ser chamadas de fora da página (não passam pelo middleware):
+// cada ação confere o admin antes de tocar no banco.
+async function adminSession() {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    return { supabase, admin: isAdmin(user) ? user : null }
+}
 
 export async function fetchLeads() {
-    const supabase = await createClient()
+    const { supabase, admin } = await adminSession()
+    if (!admin) return []
+
     const { data: leads, error } = await supabase.from('leads').select('*').order('created_at', { ascending: false })
 
     if (error) {
@@ -16,7 +29,8 @@ export async function fetchLeads() {
 }
 
 export async function moveLead(id: string, newStatus: string, metadata?: { loss_reason?: string; estimated_value?: number; mrr?: number }) {
-    const supabase = await createClient()
+    const { supabase, admin } = await adminSession()
+    if (!admin) throw new Error(ACESSO_RESTRITO)
 
     const updatePayload: Record<string, any> = { status: newStatus };
     if (metadata?.loss_reason) updatePayload.loss_reason = metadata.loss_reason;
@@ -35,15 +49,12 @@ export async function moveLead(id: string, newStatus: string, metadata?: { loss_
     }
 
     // [SPRINT 9.6] Gravar Trilha de Auditoria Universal (Caixa Preta)
-    // Tenta obter o usuário logado (opcional, só p/ gravar, pode falhar/null sem problemas)
-    const { data: { user } } = await supabase.auth.getUser();
-
     await supabase.from('audit_logs').insert([{
         entity_type: 'lead',
         entity_id: id,
         action: `STATUS_CHANGED_TO_${newStatus.toUpperCase()}`,
-        user_id: user?.id || null,
-        user_email: user?.email || 'N/A (Anônimo ou Admin Root)',
+        user_id: admin.id,
+        user_email: admin.email || 'N/A',
         new_data: updatePayload
     }]);
 
@@ -55,7 +66,8 @@ export async function moveLead(id: string, newStatus: string, metadata?: { loss_
 
 export async function scheduleMeeting(leadId: string, title: string, meetingDate: string, platform: string, link: string) {
     try {
-        const supabase = await createClient()
+        const { supabase, admin } = await adminSession()
+        if (!admin) return { error: ACESSO_RESTRITO }
 
         const { error } = await supabase.from('meetings').insert([{
             lead_id: leadId,
@@ -80,7 +92,9 @@ export async function scheduleMeeting(leadId: string, title: string, meetingDate
 }
 
 export async function getLeadAudits(leadId: string) {
-    const supabase = await createClient();
+    const { supabase, admin } = await adminSession()
+    if (!admin) return []
+
     const { data } = await supabase
         .from('audit_logs')
         .select('*')
@@ -91,7 +105,9 @@ export async function getLeadAudits(leadId: string) {
 }
 
 export async function deleteMeeting(meetingId: string) {
-    const supabase = await createClient();
+    const { supabase, admin } = await adminSession()
+    if (!admin) throw new Error(ACESSO_RESTRITO)
+
     const { error } = await supabase
         .from('meetings')
         .delete()

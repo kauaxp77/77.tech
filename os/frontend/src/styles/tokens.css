@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* A marca é a mesma do site atual (src/app/globals.css do Next.js na raiz):
+   roxo #7C4DFF, fundo #050505 e Poppins. Mudou lá, muda aqui. */
+@theme {
+  --color-background: #050505;
+  --color-surface: #0E0E11;
+  --color-foreground: #FFFFFF;
+  --color-primary: #7C4DFF;
+  --color-secondary: #B388FF;
+  --color-text-secondary: #A1A1AA;
+  --color-text-tertiary: #71717A;
+  --color-danger: #F87171;
+  --color-success: #4ADE80;
+  --color-warning: #FBBF24;
+  --font-sans: Poppins, ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+/* Cartão de vidro, igual ao do site atual. */
+@utility glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Foco sempre visível: estas telas precisam funcionar no teclado. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}

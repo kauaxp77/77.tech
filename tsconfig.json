@@ -30,5 +30,7 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  // "os" é o 77xp OS (backend Java e frontend Vite), que tem o tsconfig dele.
+  // Sem esta exclusão, o typecheck do site tenta compilar o frontend novo.
+  "exclude": ["node_modules", "os"]
 }

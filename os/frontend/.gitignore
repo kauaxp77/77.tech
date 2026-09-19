@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.vite/
+
+# O .gitignore da raiz (do site Next.js) tem ".env*", que engoliria o exemplo.
+.env
+.env.local
+!.env.example
+
+### IDEs ###
+.idea/
+.vscode/
+*.iml

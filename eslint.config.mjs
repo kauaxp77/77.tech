@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // O 77xp OS (pasta os/) tem as próprias regras; não é parte do site Next.js.
+    "os/**",
   ]),
 ]);
 

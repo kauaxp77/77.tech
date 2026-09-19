@@ -1,5 +1,5 @@
 # Ambiente local do 77xp OS. Tudo roda em containers.
-#   docker compose up -d                   -> postgres, mailpit e api (perfil dev)
+#   docker compose up -d                   -> postgres, mailpit, api (perfil dev) e frontend
 #   docker compose run --rm backend-tests  -> suíte completa do backend (./mvnw -B verify)
 # As variáveis SMTP_* e BOOTSTRAP_OWNER_EMAIL da api passam a ser lidas nas Tarefas 10 e 11.
 name: xp77-os
@@ -54,6 +54,24 @@ services:
       mailpit:
         condition: service_started
 
+  frontend:
+    image: node:24-alpine
+    working_dir: /app/frontend
+    # Instala se faltar e sobe o Vite. Primeira subida demora (baixa os pacotes).
+    command: ["sh", "-c", "npm install && npm run dev"]
+    environment:
+      # O navegador chama a API pelo endereço do computador, não pelo nome do container.
+      VITE_API_URL: http://localhost:8080/api/v1
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app/frontend
+      # node_modules num volume próprio: não mistura com o do computador (Linux x Windows).
+      - frontend-node-modules:/app/frontend/node_modules
+    depends_on:
+      api:
+        condition: service_started
+
   backend-tests:
     image: maven:3.9-eclipse-temurin-21
     profiles: ["tests"]
@@ -73,6 +91,7 @@ services:
 
 volumes:
   postgres-data:
+  frontend-node-modules:
   maven-repo:
   api-target:
   tests-target:

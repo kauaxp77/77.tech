@@ -35,3 +35,8 @@ xp77:
     max-active-sessions: ${MAX_ACTIVE_SESSIONS:3}
     cookie-secure: true
     cookie-same-site: Lax
+  rate-limit:
+    # Quantos proxies confiáveis ficam na frente da API (Render = 1). O IP do cliente
+    # é o endereço que o último proxy confiável registrou no X-Forwarded-For.
+    # Conferir no plano 3 o que o Render garante e ajustar aqui se preciso.
+    trusted-proxy-hops: 1

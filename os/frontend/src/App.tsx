@@ -11,6 +11,8 @@ import { PrimeiroAcesso } from './pages/auth/PrimeiroAcesso'
 import { RedefinirSenha } from './pages/auth/RedefinirSenha'
 import { Conta } from './pages/account/Conta'
 import { ContasDeAcesso } from './pages/panel/ContasDeAcesso'
+import { Orcamento } from './pages/panel/Orcamento'
+import { Precos } from './pages/panel/Precos'
 import { Inicio } from './pages/portal/Inicio'
 import { Home } from './pages/public/Home'
 import { VisaoGeral } from './pages/panel/VisaoGeral'
@@ -25,7 +27,13 @@ function MenuDoPainel() {
   // Só as seções que já existem, e só as que esta conta pode abrir.
   const itens = [
     { to: '/painel', label: 'Visão geral' },
-    ...(podeGerirContas ? [{ to: '/painel/contas', label: 'Contas de acesso' }] : []),
+    ...(podeGerirContas
+      ? [
+          { to: '/painel/orcamento', label: 'Montar orçamento' },
+          { to: '/painel/precos', label: 'Tabela de preços' },
+          { to: '/painel/contas', label: 'Contas de acesso' },
+        ]
+      : []),
     { to: '/painel/conta', label: 'Minha conta' },
   ]
 
@@ -82,6 +90,22 @@ export function App() {
             <Route path="/esqueci-a-senha" element={<EsqueciSenha />} />
             <Route path="/painel" element={<Painel />}>
               <Route index element={<VisaoGeral />} />
+              <Route
+                path="orcamento"
+                element={
+                  <RequireRole allow={GERENTES_DE_CONTA}>
+                    <Orcamento />
+                  </RequireRole>
+                }
+              />
+              <Route
+                path="precos"
+                element={
+                  <RequireRole allow={GERENTES_DE_CONTA}>
+                    <Precos />
+                  </RequireRole>
+                }
+              />
               <Route
                 path="contas"
                 element={

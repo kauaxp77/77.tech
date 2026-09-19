@@ -86,6 +86,22 @@ class AuditLoggerTest extends PostgresTestBase {
     }
 
     @Test
+    void aSuccessIsNotRecordedWhenTheCallersTransactionRollsBack() {
+        // O par do teste acima, e a distinção que faz a auditoria não esgotar o pool:
+        // falha sobrevive ao rollback, sucesso não. Se a operação foi desfeita, ela não
+        // aconteceu — registrar um sucesso que não houve seria mentira na trilha.
+        String entity = TestData.unique("sucesso-desfeito");
+
+        OrgContext.runAs(RootOrganization.ID, () -> new TransactionTemplate(transactionManager)
+                .executeWithoutResult(status -> {
+                    audit.record("ADMIN_ACTION", "Teste", entity, Map.of());
+                    status.setRollbackOnly();
+                }));
+
+        assertThat(count(entity)).isZero();
+    }
+
+    @Test
     void withoutOrganizationTheEntryIsDroppedQuietly() {
         String entity = TestData.unique("sem-org");
 

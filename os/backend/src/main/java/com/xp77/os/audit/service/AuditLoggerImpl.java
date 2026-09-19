@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -43,8 +45,8 @@ public class AuditLoggerImpl implements AuditLogger {
         this.repository = repository;
         this.mapper = mapper;
         this.clientIp = clientIp;
-        // Transação própria: o registro de uma falha sobrevive ao rollback de quem chamou,
-        // e um erro ao gravar nunca marca a transação de quem chamou para rollback.
+        // Transação própria: um erro ao gravar nunca marca a transação de quem chamou
+        // para rollback, e fora de transação o registro sai na hora.
         this.ownTransaction = new TransactionTemplate(transactionManager);
         this.ownTransaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
     }
@@ -77,12 +79,41 @@ public class AuditLoggerImpl implements AuditLogger {
                 entry.setIp(clientIp.resolve(r));
                 entry.setUserAgent(truncate(r.getHeader("User-Agent")));
             });
-            ownTransaction.executeWithoutResult(status -> repository.saveAndFlush(entry));
+            write(entry, success);
             request.ifPresent(r -> r.setAttribute(RECORDED_IN_THIS_REQUEST, Boolean.TRUE));
         } catch (Exception e) {
             // Um registro perdido é ruim; uma operação perdida por causa dele seria pior.
             log.error("Falha ao gravar auditoria da ação {} sobre {} {}", action, entityType, entityId, e);
         }
+    }
+
+    /**
+     * Grava o registro. A regra muda conforme seja sucesso ou falha, e a diferença
+     * importa.
+     *
+     * FALHA grava na hora, em transação própria, mesmo dentro de outra transação: uma
+     * tentativa recusada precisa ficar registrada justamente quando a operação foi
+     * desfeita. É o caso que mais interessa a quem investiga depois.
+     *
+     * SUCESSO dentro de uma transação espera o commit. Se der rollback, a operação não
+     * aconteceu e não há o que auditar. Esperar evita que a thread segure duas conexões
+     * ao mesmo tempo (a suspensa e a nova) — com requisições simultâneas suficientes,
+     * isso esgotaria o pool e travaria todo mundo. Ver TransactionNestingTest.
+     *
+     * Falhas são raras por natureza, então o punhado que ainda aninha não move a conta
+     * do pool.
+     */
+    private void write(AuditLog entry, boolean success) {
+        if (success && TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    ownTransaction.executeWithoutResult(status -> repository.saveAndFlush(entry));
+                }
+            });
+            return;
+        }
+        ownTransaction.executeWithoutResult(status -> repository.saveAndFlush(entry));
     }
 
     /** Fora de uma requisição (processos em segundo plano) não há ninguém logado: autor vazio. */

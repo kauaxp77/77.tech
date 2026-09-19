@@ -1,0 +1,75 @@
+{
+  "_porque": [
+    "A conta do orçamento existe em dois lugares: no Java (QuoteCalculator), que é a",
+    "verdade na hora de emitir uma proposta, e no TypeScript (orcamento.ts), que dá o",
+    "número na hora enquanto a pessoa monta o orçamento na tela.",
+    "",
+    "Duas implementações divergem — foi assim que o sistema chegou a ter quatro tabelas",
+    "de preço. Este arquivo é a cerca: os dois lados rodam estes mesmos casos, e qualquer",
+    "diferença quebra o CI antes de virar um número errado na proposta de um cliente.",
+    "",
+    "Valores em centavos."
+  ],
+  "casos": [
+    {
+      "nome": "só o projeto base",
+      "linhas": [{ "nome": "Plataforma SaaS", "centavos": 800000, "semanas": 8 }],
+      "multiplicador": "1.00",
+      "descontoPercent": 0,
+      "esperado": { "subtotal": 800000, "taxa": 0, "desconto": 0, "total": 800000, "semanas": 8 }
+    },
+    {
+      "nome": "base mais adicionais",
+      "linhas": [
+        { "nome": "Plataforma SaaS", "centavos": 800000, "semanas": 8 },
+        { "nome": "Design Exclusivo", "centavos": 150000, "semanas": 2 },
+        { "nome": "Login de usuários", "centavos": 200000, "semanas": 1 }
+      ],
+      "multiplicador": "1.00",
+      "descontoPercent": 0,
+      "esperado": { "subtotal": 1150000, "taxa": 0, "desconto": 0, "total": 1150000, "semanas": 11 }
+    },
+    {
+      "nome": "taxa de agência vira linha separada",
+      "linhas": [{ "nome": "Plataforma SaaS", "centavos": 800000, "semanas": 8 }],
+      "multiplicador": "1.80",
+      "descontoPercent": 0,
+      "esperado": { "subtotal": 800000, "taxa": 640000, "desconto": 0, "total": 1440000, "semanas": 8 }
+    },
+    {
+      "nome": "desconto incide sobre o subtotal, não sobre o total com taxa",
+      "linhas": [{ "nome": "Plataforma SaaS", "centavos": 800000, "semanas": 8 }],
+      "multiplicador": "1.80",
+      "descontoPercent": 10,
+      "esperado": { "subtotal": 800000, "taxa": 640000, "desconto": 80000, "total": 1360000, "semanas": 8 }
+    },
+    {
+      "nome": "acréscimo é desconto negativo",
+      "linhas": [{ "nome": "Landing Page Simples", "centavos": 150000, "semanas": 1 }],
+      "multiplicador": "1.00",
+      "descontoPercent": -20,
+      "esperado": { "subtotal": 150000, "taxa": 0, "desconto": -30000, "total": 180000, "semanas": 1 }
+    },
+    {
+      "nome": "arredondamento de meio centavo vai para cima",
+      "linhas": [{ "nome": "Item quebrado", "centavos": 33333, "semanas": 0 }],
+      "multiplicador": "1.15",
+      "descontoPercent": 0,
+      "esperado": { "subtotal": 33333, "taxa": 5000, "desconto": 0, "total": 38333, "semanas": 0 }
+    },
+    {
+      "nome": "cem por cento de desconto zera, não fica negativo",
+      "linhas": [{ "nome": "Qualquer", "centavos": 100000, "semanas": 1 }],
+      "multiplicador": "1.00",
+      "descontoPercent": 100,
+      "esperado": { "subtotal": 100000, "taxa": 0, "desconto": 100000, "total": 0, "semanas": 1 }
+    },
+    {
+      "nome": "sem item nenhum dá zero",
+      "linhas": [],
+      "multiplicador": "1.00",
+      "descontoPercent": 0,
+      "esperado": { "subtotal": 0, "taxa": 0, "desconto": 0, "total": 0, "semanas": 0 }
+    }
+  ]
+}

@@ -113,6 +113,15 @@ desconto, o total e o prazo em semanas. **Aritmética inteira, em centavos.**
 dar o mesmo número. Duas implementações voltariam a divergir — que é exatamente a doença
 que este plano está curando.
 
+> **O que mudou na execução:** o simulador precisa responder a cada clique, e chamar o
+> servidor a cada marcação deixaria a tela lenta. Então a conta existe **duas vezes**:
+> em Java (verdade na hora de emitir a proposta) e em TypeScript (número na hora).
+>
+> Para isso não virar a quinta divergência, os dois lados rodam **os mesmos casos**, em
+> `os/contratos/casos-de-orcamento.json`. Se um mudar e o outro não, o CI quebra.
+> Verificado: mudando só o lado JavaScript para aplicar o desconto sobre o total em vez
+> de sobre o subtotal, o teste apontou o caso exato.
+
 **Prova:** os casos da sua calculadora conferem centavo a centavo; multiplicador de 1,8×
 sobre R$ 8.000 dá R$ 14.400 e a linha "Taxa de Agência" mostra R$ 6.400; desconto de 10%
 incide sobre o subtotal, não sobre o total com taxa; arredondamento nunca perde centavo.

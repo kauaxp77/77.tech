@@ -35,3 +35,23 @@ export type PortalMe = {
 export function homeFor(role: Role): string {
   return role === 'CLIENT' ? '/minha-conta' : '/painel'
 }
+
+/** Um item do catálogo de preços. Preço em CENTAVOS: a tela converte para reais. */
+export type PriceItem = {
+  id: string
+  kind: 'BASE' | 'DESIGN' | 'EXTRA'
+  name: string
+  priceCents: number
+  weeks: number
+  sortOrder: number
+  active: boolean
+}
+
+/** O fator vem como texto para não perder precisão no caminho ("1.80", não 1.8). */
+export type PriceMultiplier = {
+  id: string
+  name: string
+  factor: string
+  sortOrder: number
+  active: boolean
+}

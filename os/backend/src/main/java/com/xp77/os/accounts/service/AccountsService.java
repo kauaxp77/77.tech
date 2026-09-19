@@ -72,7 +72,11 @@ public class AccountsService {
                 member.role(), member.name());
     }
 
-    /** Bloqueia nesta organização e derruba na hora todas as sessões da pessoa. */
+    /**
+     * Bloqueia nesta organização e derruba na hora as sessões dela AQUI. Se a pessoa
+     * também tem conta em outra organização, aquelas sessões continuam: o bloqueio vale
+     * para o vínculo, não para a pessoa no sistema todo.
+     */
     @Transactional
     public void block(AuthenticatedUser actor, UUID userId) {
         if (actor.userId().equals(userId)) {
@@ -81,7 +85,7 @@ public class AccountsService {
         MemberSummary member = memberOf(actor, userId);
         ensureMayManage(actor, member.role());
         memberships.block(userId, actor.orgId());
-        sessions.revokeAllSessions(userId);
+        sessions.revokeSessionsInOrganization(userId, actor.orgId());
     }
 
     @Transactional

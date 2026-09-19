@@ -25,6 +25,26 @@ class BlockRevokesSessionsTest extends PostgresTestBase {
     @Autowired
     private RefreshTokenService sessions;
 
+    /**
+     * O bloqueio vale por organização: a mesma pessoa pode ser cliente de duas, e quem
+     * administra uma não tem nada a ver com a outra. Só as sessões nascidas ali caem.
+     */
+    @Test
+    void blockingInOneOrganizationLeavesTheSessionsOfAnotherAlone() {
+        UUID owner = TestAuth.rootMember(TestData.uniqueEmail("dono-duas-orgs"), "OWNER");
+        UUID member = TestAuth.rootMember(TestData.uniqueEmail("nas-duas"), "TEAM");
+        UUID otherOrg = TestData.createOrg("Organização vizinha");
+        TestData.addMembership(member, otherOrg, "CLIENT");
+        String hereSession = sessions.issue(member, RootOrganization.ID, Origin.UNKNOWN);
+        String thereSession = sessions.issue(member, otherOrg, Origin.UNKNOWN);
+        AuthenticatedUser actor = new AuthenticatedUser(owner, RootOrganization.ID, "dono@exemplo.com", "OWNER");
+
+        OrgContext.runAs(RootOrganization.ID, () -> accounts.block(actor, member));
+
+        assertThat(sessions.rotate(hereSession, Origin.UNKNOWN)).isEmpty();
+        assertThat(sessions.rotate(thereSession, Origin.UNKNOWN)).isPresent();
+    }
+
     @Test
     void blockingEndsEverySessionOfThePersonAtOnce() {
         UUID owner = TestAuth.rootMember(TestData.uniqueEmail("dono-bloqueio"), "OWNER");

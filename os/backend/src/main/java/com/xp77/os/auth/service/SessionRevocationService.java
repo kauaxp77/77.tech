@@ -18,4 +18,9 @@ public class SessionRevocationService implements SessionRevocation {
     public void revokeAllSessions(UUID userId) {
         refreshTokens.revokeAll(userId);
     }
+
+    @Override
+    public void revokeSessionsInOrganization(UUID userId, UUID orgId) {
+        refreshTokens.revokeAllInOrganization(userId, orgId);
+    }
 }

@@ -123,6 +123,15 @@ public class RefreshTokenService {
         tokens.revokeAllActive(userId, Instant.now());
     }
 
+    /**
+     * Encerra só as sessões que nasceram nesta organização. A mesma pessoa pode ter conta
+     * em duas; quem administra uma não derruba a sessão dela na outra.
+     */
+    @Transactional
+    public void revokeAllInOrganization(UUID userId, UUID orgId) {
+        tokens.revokeActiveInOrganization(userId, orgId, Instant.now());
+    }
+
     private void enforceSessionLimit(UUID userId) {
         List<RefreshToken> active = tokens.findActiveByUser(userId);
         // Nunca além do tamanho da lista: MAX_ACTIVE_SESSIONS vem do ambiente e, em 0

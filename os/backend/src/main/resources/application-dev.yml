@@ -6,6 +6,12 @@ spring:
   flyway:
     user: ${FLYWAY_USER:xp77}
     password: ${FLYWAY_PASSWORD:xp77}
+  mail:
+    # Mailpit local (docker compose define SMTP_HOST=mailpit dentro da rede).
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASSWORD:}
 
 logging:
   level:
@@ -18,3 +24,6 @@ xp77:
     cookie-secure: false
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  email:
+    from: ${MAIL_FROM:nao-responda@77xp.local}
+    base-url: ${APP_BASE_URL:http://localhost:5173}

@@ -10,3 +10,14 @@ xp77:
     cookie-secure: false
   cors:
     allowed-origins: http://localhost:5173
+  email:
+    from: nao-responda@77xp.test
+    base-url: http://localhost:5173
+  scheduling:
+    enabled: false
+
+spring:
+  mail:
+    # Nenhum SMTP roda nos testes; o SmtpEmailSenderMailpitTest sobe o próprio Mailpit.
+    host: localhost
+    port: 1025

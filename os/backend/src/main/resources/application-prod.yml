@@ -9,6 +9,18 @@ spring:
   flyway:
     user: ${FLYWAY_USER}
     password: ${FLYWAY_PASSWORD}
+  mail:
+    # Resend por SMTP (porta 587 com STARTTLS).
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT}
+    username: ${SMTP_USER}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   tomcat:
@@ -25,3 +37,6 @@ xp77:
     jwt-secret: ${JWT_SECRET}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  email:
+    from: ${MAIL_FROM}
+    base-url: ${APP_BASE_URL}

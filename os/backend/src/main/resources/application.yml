@@ -27,6 +27,11 @@ management:
     health:
       probes:
         enabled: true
+  health:
+    # SMTP fora do ar não derruba a saúde da aplicação: a fila tenta de novo com
+    # backoff. Sem isto, o health check do Render mataria um processo saudável.
+    mail:
+      enabled: false
 
 xp77:
   auth:
@@ -40,3 +45,10 @@ xp77:
     # é o endereço que o último proxy confiável registrou no X-Forwarded-For.
     # Conferir no plano 3 o que o Render garante e ajustar aqui se preciso.
     trusted-proxy-hops: 1
+  email:
+    dispatch-interval-ms: 15000
+    batch-size: 20
+  scheduling:
+    # Processos em segundo plano (fila de e-mail). Desligado nos testes, que chamam
+    # o despacho diretamente.
+    enabled: true

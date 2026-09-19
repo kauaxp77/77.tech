@@ -24,6 +24,18 @@ export default tseslint.config(
     },
   },
   {
+    // Scripts de apoio (capturar telas, dados de exemplo): JavaScript puro rodando no
+    // Node, fora do build. As regras que precisam do TypeScript não se aplicam a eles.
+    files: ['**/*.mjs'],
+    extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: {
+      globals: {
+        process: 'readonly', console: 'readonly', fetch: 'readonly', URL: 'readonly',
+        setTimeout: 'readonly', Error: 'readonly', Date: 'readonly', Promise: 'readonly',
+      },
+    },
+  },
+  {
     // Testes usam os globais do Vitest (describe/it/expect/vi) sem importar.
     files: ['**/*.test.{ts,tsx}', 'src/setupTests.ts'],
     languageOptions: {

@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -49,6 +50,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> negocio(BusinessException ex, HttpServletRequest req) {
         log.warn("Erro de negocio {} em {}: {}", ex.code(), req.getRequestURI(), ex.getMessage());
         return montar(ex.code(), ex.getMessage(), ex.code().httpStatus(), req.getRequestURI(), List.of());
+    }
+
+    /** Negação lançada dentro de um controller (ex.: @PreAuthorize): 403 no envelope, nunca 500. */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> negado(AccessDeniedException ex,
+                                                    HttpServletRequest req) {
+        log.warn("Acesso negado em {}", req.getRequestURI());
+        return montar(ErrorCode.FORBIDDEN, "Acesso negado",
+                ErrorCode.FORBIDDEN.httpStatus(), req.getRequestURI(), List.of());
     }
 
 

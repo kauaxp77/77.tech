@@ -55,7 +55,10 @@ export function Conta() {
       await logout()
     } finally {
       // Sai da tela mesmo se a chamada falhar: o token desta aba já foi apagado.
-      void navigate('/', { replace: true })
+      // Vai para /entrar, e não para a porta de entrada: sem sessão, a guarda desta
+      // rota manda para /entrar de qualquer jeito, e disputar com ela daria um
+      // destino diferente a cada vez.
+      void navigate('/entrar', { replace: true })
     }
   }
 

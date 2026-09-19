@@ -97,7 +97,7 @@ describe('painel', () => {
     expect(await screen.findByText('tela de entrar')).toBeInTheDocument()
   })
 
-  it('sair encerra a sessão e volta para o site', async () => {
+  it('sair encerra a sessão e leva para a tela de entrar', async () => {
     const user = userEvent.setup()
     logout.mockResolvedValue(undefined)
     renderAt('/painel/conta')
@@ -105,6 +105,6 @@ describe('painel', () => {
     await user.click(await screen.findByRole('button', { name: 'Sair' }))
 
     expect(logout).toHaveBeenCalledOnce()
-    expect(await screen.findByText('site')).toBeInTheDocument()
+    expect(await screen.findByText('tela de entrar')).toBeInTheDocument()
   })
 })

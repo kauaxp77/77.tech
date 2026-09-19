@@ -1,0 +1,37 @@
+name: os-frontend
+
+on:
+  push:
+    branches: [teste, main]
+    paths:
+      - 'os/frontend/**'
+      - '.github/workflows/os-frontend.yml'
+  pull_request:
+    branches: [teste, main]
+    paths:
+      - 'os/frontend/**'
+      - '.github/workflows/os-frontend.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: os/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: os/frontend/package-lock.json
+      - run: npm ci
+      # Ordem de propósito: lint e typecheck são rápidos e falham cedo. O teste da
+      # pré-geração roda o build por dentro, então o build sai checado duas vezes —
+      # é barato e garante que a pasta dist/ fica de pé no fim.
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      # O e2e não roda aqui: ele precisa do banco, da API e do servidor de e-mail
+      # de pé. Roda no computador, com `docker compose up -d` (veja o README).

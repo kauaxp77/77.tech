@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { ApiError } from '../../api/ApiError'
 import { AuthProvider } from '../../app/AuthProvider'
 import type { Me } from '../../api/types'
-import { Conta } from './Conta'
+import { Conta } from '../account/Conta'
 import { VisaoGeral } from './VisaoGeral'
 
 const restore = vi.hoisted(() => vi.fn())

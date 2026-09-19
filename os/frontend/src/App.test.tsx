@@ -12,6 +12,14 @@ vi.mock('./api/session', () => ({
   loadMe: vi.fn(),
 }))
 
+vi.mock('./api/portal', () => ({
+  loadPortalMe: vi.fn().mockResolvedValue({
+    name: 'Carla Menezes',
+    email: 'carla@empresa.com',
+    organizationName: '77xp Tech',
+  }),
+}))
+
 vi.mock('./api/members', () => ({
   listMembers,
   inviteMember: vi.fn(),
@@ -50,6 +58,28 @@ describe('App', () => {
     render(<App />)
 
     expect(await screen.findAllByRole('link', { name: 'Contas de acesso' })).not.toHaveLength(0)
+  })
+
+  it('o cliente não vê nenhum item do painel no menu', async () => {
+    restore.mockResolvedValue(conta('CLIENT'))
+    window.history.pushState({}, '', '/minha-conta')
+
+    render(<App />)
+
+    expect(await screen.findAllByRole('link', { name: 'Início' })).not.toHaveLength(0)
+    for (const doPainel of ['Visão geral', 'Contas de acesso']) {
+      expect(screen.queryByRole('link', { name: doPainel })).not.toBeInTheDocument()
+    }
+  })
+
+  it('o cliente que tenta abrir o painel volta para a área dele', async () => {
+    restore.mockResolvedValue(conta('CLIENT'))
+    window.history.pushState({}, '', '/painel/contas')
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: /Bem-vindo/ })).toBeInTheDocument()
+    expect(listMembers).not.toHaveBeenCalled()
   })
 
   it('a equipe não vê "Contas de acesso" nem consegue abrir a rota', async () => {

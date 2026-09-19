@@ -9,8 +9,9 @@ import { Entrar } from './pages/auth/Entrar'
 import { EsqueciSenha } from './pages/auth/EsqueciSenha'
 import { PrimeiroAcesso } from './pages/auth/PrimeiroAcesso'
 import { RedefinirSenha } from './pages/auth/RedefinirSenha'
-import { Conta } from './pages/panel/Conta'
+import { Conta } from './pages/account/Conta'
 import { ContasDeAcesso } from './pages/panel/ContasDeAcesso'
+import { Inicio } from './pages/portal/Inicio'
 import { VisaoGeral } from './pages/panel/VisaoGeral'
 
 /** Quem mexe em contas de acesso: a API só deixa estes dois em /admin/users. */
@@ -33,6 +34,27 @@ function MenuDoPainel() {
     <PanelLayout items={itens} title="Painel" userName={null}>
       <Outlet />
     </PanelLayout>
+  )
+}
+
+/**
+ * Área do cliente: mesma estrutura do painel, menu próprio. Nada de administração
+ * aparece aqui — e a API recusaria de qualquer jeito, porque /admin/** é OWNER e ADMIN.
+ */
+const MENU_DO_CLIENTE = [
+  { to: '/minha-conta', label: 'Início' },
+  { to: '/minha-conta/conta', label: 'Minha conta' },
+]
+
+function AreaDoCliente() {
+  return (
+    <RequireAuth>
+      <RequireRole allow={['CLIENT']}>
+        <PanelLayout items={MENU_DO_CLIENTE} title="Área do cliente" userName={null}>
+          <Outlet />
+        </PanelLayout>
+      </RequireRole>
+    </RequireAuth>
   )
 }
 
@@ -68,7 +90,11 @@ export function App() {
               />
               <Route path="conta" element={<Conta />} />
             </Route>
-            {/* Área do cliente e página inicial chegam nas próximas tarefas. */}
+            <Route path="/minha-conta" element={<AreaDoCliente />}>
+              <Route index element={<Inicio />} />
+              <Route path="conta" element={<Conta />} />
+            </Route>
+            {/* A página inicial pública chega na próxima tarefa. */}
             <Route path="*" element={<Navigate to="/entrar" replace />} />
           </Routes>
         </AuthProvider>

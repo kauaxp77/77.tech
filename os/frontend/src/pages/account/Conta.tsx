@@ -10,6 +10,11 @@ import { Field } from '../../ui/Field'
 
 const MIN_PASSWORD = 8
 
+/**
+ * A mesma tela serve o painel (/painel/conta) e a Área do cliente (/minha-conta/conta):
+ * trocar senha e sair é igual para os dois. Duas cópias seriam dois lugares para corrigir
+ * o mesmo defeito.
+ */
 export function Conta() {
   const { me, logout } = useAuth()
   const navigate = useNavigate()

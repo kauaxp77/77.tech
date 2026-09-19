@@ -72,7 +72,7 @@ public class RefreshTokenService {
         if (value == null || value.isBlank()) {
             return Optional.empty();
         }
-        Optional<RefreshToken> found = tokens.findByTokenHash(OpaqueTokens.sha256Hex(value));
+        Optional<RefreshToken> found = tokens.lockByTokenHash(OpaqueTokens.sha256Hex(value));
         if (found.isEmpty()) {
             return Optional.empty();
         }
@@ -111,7 +111,7 @@ public class RefreshTokenService {
         if (value == null || value.isBlank()) {
             return Optional.empty();
         }
-        return tokens.findByTokenHash(OpaqueTokens.sha256Hex(value)).map(token -> {
+        return tokens.lockByTokenHash(OpaqueTokens.sha256Hex(value)).map(token -> {
             token.revoke();
             tokens.saveAndFlush(token);
             return token.getUserId();
@@ -125,7 +125,9 @@ public class RefreshTokenService {
 
     private void enforceSessionLimit(UUID userId) {
         List<RefreshToken> active = tokens.findActiveByUser(userId);
-        int excess = active.size() - (maxActiveSessions - 1);
+        // Nunca além do tamanho da lista: MAX_ACTIVE_SESSIONS vem do ambiente e, em 0
+        // ou 1, a conta simples pediria um índice que não existe e derrubaria o login.
+        int excess = Math.min(active.size(), active.size() - (maxActiveSessions - 1));
         for (int i = 0; i < excess; i++) {
             RefreshToken oldest = active.get(i);
             oldest.revoke();

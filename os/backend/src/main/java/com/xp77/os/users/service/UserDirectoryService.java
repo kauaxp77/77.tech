@@ -25,10 +25,13 @@ public class UserDirectoryService implements UserDirectory {
 
     private final UserRepository users;
     private final PasswordEncoder encoder;
+    /** Hash de mentira, só para o caminho "e-mail não existe" custar o mesmo tempo. */
+    private final String dummyHash;
 
     public UserDirectoryService(UserRepository users, PasswordEncoder encoder) {
         this.users = users;
         this.encoder = encoder;
+        this.dummyHash = encoder.encode("conta-que-nao-existe-" + java.util.UUID.randomUUID());
     }
 
     @Override
@@ -54,6 +57,9 @@ public class UserDirectoryService implements UserDirectory {
     public Optional<UserAccount> verifyCredentials(String email, String password) {
         Optional<User> found = users.findByEmail(normalize(email));
         if (found.isEmpty()) {
+            // Sem isto, responder "e-mail ou senha inválidos" para todo mundo não adianta:
+            // o e-mail que não existe volta em milissegundos e o que existe, depois do Argon2.
+            encoder.matches(password == null ? "" : password, dummyHash);
             return Optional.empty();
         }
         User user = found.get();

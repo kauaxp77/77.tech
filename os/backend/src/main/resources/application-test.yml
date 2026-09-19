@@ -20,6 +20,12 @@ xp77:
     per-minute: 1000
 
 spring:
+  datasource:
+    hikari:
+      # Cada classe com configuração própria ganha um contexto Spring, e cada contexto,
+      # um pool. Com o padrão (10) a suíte inteira estourava as 100 conexões do
+      # PostgreSQL e classes aleatórias falhavam por falta de conexão.
+      maximum-pool-size: 4
   mail:
     # Nenhum SMTP roda nos testes; o SmtpEmailSenderMailpitTest sobe o próprio Mailpit.
     host: localhost

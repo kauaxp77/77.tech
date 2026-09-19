@@ -1,6 +1,15 @@
 spring:
   application:
     name: xp77-os
+  mail:
+    properties:
+      mail:
+        smtp:
+          # Sem estes limites o JavaMail espera para sempre: um servidor de e-mail
+          # travado pararia a fila inteira, com a mensagem travada e sem novas tentativas.
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
   jpa:
     # Sem sessão aberta na view: toda consulta acontece dentro de uma transação,
     # que é onde app.org_id é informado ao banco.

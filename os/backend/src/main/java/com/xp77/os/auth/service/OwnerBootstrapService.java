@@ -7,6 +7,8 @@ import com.xp77.os.users.api.MembershipDirectory;
 import com.xp77.os.users.api.MembershipRole;
 import com.xp77.os.users.api.UserAccount;
 import com.xp77.os.users.api.UserDirectory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,8 @@ import java.util.Optional;
  */
 @Service
 public class OwnerBootstrapService {
+
+    private static final Logger log = LoggerFactory.getLogger(OwnerBootstrapService.class);
 
     private final UserDirectory users;
     private final MembershipDirectory memberships;
@@ -42,6 +46,14 @@ public class OwnerBootstrapService {
         UserAccount owner = existing.orElseGet(() -> users.createWithoutPassword(email, null));
         memberships.grant(owner.id(), RootOrganization.ID, MembershipRole.OWNER);
         if (existing.isPresent()) {
+            // grant não muda o papel de um vínculo que já existe (é idempotente de propósito).
+            // Se a conta já estava na 77xp como outra coisa, a organização fica SEM dono, e
+            // isso não pode passar em silêncio: alguém precisa promover o vínculo à mão.
+            memberships.findMember(owner.id(), RootOrganization.ID)
+                    .filter(member -> member.role() != MembershipRole.OWNER)
+                    .ifPresent(member -> log.warn("BOOTSTRAP_OWNER_EMAIL aponta para uma conta que já existe"
+                            + " na 77xp como {}; o vínculo NÃO foi promovido e a organização segue sem dono.",
+                            member.role()));
             return false;
         }
         FirstAccessTokens.Issued link = firstAccess.issueFor(owner.id());

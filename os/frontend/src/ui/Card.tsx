@@ -24,9 +24,11 @@ export function Card({
 export function EmptyState({ title, description }: { title: string; description: string }) {
   return (
     <Card className="flex flex-col items-center gap-3 py-16 text-center">
+      {/* Quadrado com o degradê da marca: um contorno vazio parecia ícone que não carregou. */}
       <div
         aria-hidden="true"
-        className="mb-1 size-12 rounded-2xl border border-primary/40 shadow-[var(--shadow-glow-soft)]"
+        className="mb-1 size-12 rounded-2xl border border-primary/30 bg-gradient-to-br
+          from-primary/35 to-secondary/15 shadow-[var(--shadow-glow-soft)]"
       />
       <p className="text-base font-semibold text-foreground">{title}</p>
       <p className="max-w-sm text-sm leading-relaxed text-text-secondary">{description}</p>

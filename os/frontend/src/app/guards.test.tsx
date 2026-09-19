@@ -43,13 +43,21 @@ describe('guardas de rota', () => {
     vi.clearAllMocks()
   })
 
-  it('não pisca a tela de entrar enquanto ainda está verificando a sessão', async () => {
+  it('não pisca a tela de entrar enquanto ainda está verificando a sessão', () => {
     restore.mockReturnValue(new Promise(() => undefined))
 
     app('/painel', <RequireAuth><p>painel</p></RequireAuth>)
 
     expect(screen.queryByText('tela de entrar')).not.toBeInTheDocument()
     expect(screen.getByRole('status')).toBeInTheDocument()
+  })
+
+  it('se a rede cair ao abrir o site, não fica preso em "Verificando"', async () => {
+    restore.mockRejectedValue(new Error('rede fora'))
+
+    app('/painel', <RequireAuth><p>painel</p></RequireAuth>)
+
+    expect(await screen.findByText('tela de entrar')).toBeInTheDocument()
   })
 
   it('sem sessão, manda para a tela de entrar', async () => {

@@ -21,12 +21,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false
-    void restoreSession().then((restored) => {
+    const finish = (restored: Me | null) => {
       if (!cancelled) {
         setMe(restored)
         setChecking(false)
       }
-    })
+    }
+    // O catch não é enfeite: sem ele, uma falha de rede ao abrir o site deixava
+    // checking em true para sempre e a tela travava em "Verificando…".
+    void restoreSession().then(finish, () => finish(null))
     return () => {
       cancelled = true
     }
@@ -42,8 +45,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    await logoutRequest()
-    setMe(null)
+    try {
+      await logoutRequest()
+    } finally {
+      // Sair é sair: mesmo se o servidor não responder, esta aba esquece a sessão.
+      setMe(null)
+    }
   }, [])
 
   const value = useMemo<AuthState>(

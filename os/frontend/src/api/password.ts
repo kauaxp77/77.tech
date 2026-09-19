@@ -16,3 +16,12 @@ export async function setPasswordWithLink(
 ): Promise<void> {
   await api.post(route, { token, password })
 }
+
+/**
+ * Troca a senha de quem está logado. A senha atual é exigida mesmo com sessão aberta:
+ * sessão aberta prova que a pessoa entrou algum dia, não que é ela no teclado agora.
+ * Depois disso a API derruba TODAS as sessões — inclusive esta.
+ */
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await api.post('/auth/change-password', { currentPassword, newPassword })
+}

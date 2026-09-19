@@ -60,7 +60,7 @@ export function DefinirSenha({ route, title, subtitle, submitLabel }: Props) {
     setSending(true)
     try {
       await setPasswordWithLink(route, token as string, password)
-      navigate('/entrar', { replace: true, state: { senhaCriada: true } })
+      void navigate('/entrar', { replace: true, state: { senhaCriada: true } })
     } catch (caught) {
       setError(
         caught instanceof ApiError ? caught.userMessage : 'Não foi possível salvar a senha.',

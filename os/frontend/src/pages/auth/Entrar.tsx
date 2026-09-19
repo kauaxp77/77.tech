@@ -34,7 +34,7 @@ export function Entrar() {
       const logged = await login(email, password)
       const from = (location.state as { from?: string } | null)?.from
       // Volta para a página que a pessoa tentou abrir, se ela for do tipo de conta dela.
-      navigate(from ?? homeFor(logged.role), { replace: true })
+      void navigate(from ?? homeFor(logged.role), { replace: true })
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.userMessage : 'Não foi possível entrar.')
     } finally {

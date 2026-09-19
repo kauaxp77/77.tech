@@ -1,5 +1,8 @@
 package com.xp77.os.support;
 
+import com.xp77.os.config.PasswordEncoderConfig;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.UUID;
 
 /**
@@ -8,7 +11,14 @@ import java.util.UUID;
  */
 public final class TestData {
 
+    private static final PasswordEncoder PASSWORDS = new PasswordEncoderConfig().passwordEncoder();
+
     private TestData() {
+    }
+
+    /** Hash {argon2} da senha, para criar usuários que conseguem entrar. */
+    public static String hash(String rawPassword) {
+        return PASSWORDS.encode(rawPassword);
     }
 
     public static String unique(String prefix) {

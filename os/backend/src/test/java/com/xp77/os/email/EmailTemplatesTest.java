@@ -34,6 +34,25 @@ class EmailTemplatesTest {
     }
 
     @Test
+    void clientInvitationWithTokenLinksToFirstAccessAndMentionsTheClientArea() {
+        RenderedEmail email = templates.render(EmailService.Templates.CONVITE,
+                Map.of("role", "CLIENT", "name", "Ana", "token", "tok-1", "validityHours", 72));
+
+        assertThat(email.subject()).isEqualTo("Seu acesso à Área do cliente da 77xp");
+        assertThat(email.body()).startsWith("Olá, Ana!").contains("Área do cliente")
+                .contains("http://localhost:5173/primeiro-acesso?token=tok-1").contains("72 horas");
+    }
+
+    @Test
+    void teamInvitationForSomeoneWhoAlreadyHasAPasswordLinksToLogin() {
+        RenderedEmail email = templates.render(EmailService.Templates.CONVITE, Map.of("role", "ADMIN"));
+
+        assertThat(email.subject()).isEqualTo("Convite para o painel da 77xp");
+        assertThat(email.body()).startsWith("Olá!").contains("como administrador")
+                .contains("http://localhost:5173/entrar").doesNotContain("primeiro-acesso");
+    }
+
+    @Test
     void unknownTemplateOrMissingTokenIsRefused() {
         assertThatThrownBy(() -> templates.render("QUALQUER", Map.of()))
                 .isInstanceOf(IllegalArgumentException.class);

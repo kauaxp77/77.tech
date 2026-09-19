@@ -43,8 +43,40 @@ public class EmailTemplates {
                     Se não foi você, ignore esta mensagem: sua senha continua a mesma.
 
                     Equipe 77xp""".formatted(validity(data), baseUrl, token(data)));
+            case EmailService.Templates.CONVITE -> invitation(data);
             default -> throw new IllegalArgumentException("Template de e-mail desconhecido: " + template);
         };
+    }
+
+    /**
+     * Convite (D10). O texto muda para cliente e para equipe; com token a pessoa cria a
+     * senha, sem token (ela já tem senha de outra organização) só entra com a dela.
+     */
+    private RenderedEmail invitation(Map<String, Object> data) {
+        boolean client = "CLIENT".equals(data.get("role"));
+        String subject = client ? "Seu acesso à Área do cliente da 77xp" : "Convite para o painel da 77xp";
+        String destination = client
+                ? "a Área do cliente da 77xp, onde você acompanha o que fazemos juntos"
+                : "o painel da 77xp como " + ("ADMIN".equals(data.get("role")) ? "administrador" : "membro da equipe");
+        String action = data.get("token") == null
+                ? "Você já tem uma senha na 77xp: é só entrar com ela em\n" + baseUrl + "/entrar"
+                : "Crie sua senha neste link (válido por " + validity(data) + "):\n"
+                        + baseUrl + "/primeiro-acesso?token=" + token(data);
+        return new RenderedEmail(subject, """
+                %s
+
+                Você foi convidado para acessar %s.
+
+                %s
+
+                Se você não esperava este convite, ignore esta mensagem.
+
+                Equipe 77xp""".formatted(greeting(data), destination, action));
+    }
+
+    private static String greeting(Map<String, Object> data) {
+        Object name = data.get("name");
+        return name == null || name.toString().isBlank() ? "Olá!" : "Olá, " + name + "!";
     }
 
     private static String token(Map<String, Object> data) {

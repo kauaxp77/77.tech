@@ -16,6 +16,7 @@ public interface EmailService {
     final class Templates {
         public static final String PRIMEIRO_ACESSO = "PRIMEIRO_ACESSO";
         public static final String REDEFINIR_SENHA = "REDEFINIR_SENHA";
+        public static final String CONVITE = "CONVITE";
 
         private Templates() {
         }

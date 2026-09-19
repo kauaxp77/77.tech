@@ -73,10 +73,23 @@ async function main() {
     await assentar(p)
     await p.screenshot({ path: `${DESTINO}/05-contas-de-acesso.png` })
 
+    await p.getByRole('link', { name: 'Tabela de preços' }).click()
+    await p.waitForSelector('text=Projeto base')
+    await assentar(p)
+    await p.screenshot({ path: `${DESTINO}/06-tabela-de-precos.png`, fullPage: true })
+
+    await p.getByRole('link', { name: 'Montar orçamento' }).click()
+    await p.waitForSelector('text=Adicionais')
+    await p.getByLabel('Projeto base').selectOption({ index: 2 })
+    await p.getByRole('checkbox', { name: /Login de usuários/ }).check()
+    await p.getByLabel('Tipo de cobrança').selectOption({ label: 'Agência' })
+    await assentar(p)
+    await p.screenshot({ path: `${DESTINO}/07-montar-orcamento.png`, fullPage: true })
+
     await p.getByRole('link', { name: 'Minha conta' }).click()
     await p.waitForSelector('h2:has-text("Trocar senha")')
     await assentar(p)
-    await p.screenshot({ path: `${DESTINO}/06-minha-conta.png` })
+    await p.screenshot({ path: `${DESTINO}/08-minha-conta.png` })
 
     // Celular.
     const celular = await browser.newContext({ ...devices['Pixel 7'] })
@@ -85,21 +98,21 @@ async function main() {
     await c.goto(BASE, { waitUntil: 'domcontentloaded' })
     await c.waitForSelector('text=O sistema da')
     await assentar(c)
-    await c.screenshot({ path: `${DESTINO}/07-celular-porta-de-entrada.png` })
+    await c.screenshot({ path: `${DESTINO}/09-celular-porta-de-entrada.png` })
 
     await entrar(c)
     await assentar(c)
-    await c.screenshot({ path: `${DESTINO}/08-celular-painel.png` })
+    await c.screenshot({ path: `${DESTINO}/10-celular-painel.png` })
 
     await c.getByRole('button', { name: 'Abrir menu' }).click()
     await assentar(c)
-    await c.screenshot({ path: `${DESTINO}/09-celular-menu.png` })
+    await c.screenshot({ path: `${DESTINO}/11-celular-menu.png` })
 
     await c.getByRole('button', { name: 'Fechar menu' }).click()
     await c.goto(`${BASE}/painel/contas`, { waitUntil: 'domcontentloaded' })
     await c.waitForSelector('text=Convidar')
     await assentar(c)
-    await c.screenshot({ path: `${DESTINO}/10-celular-contas.png`, fullPage: true })
+    await c.screenshot({ path: `${DESTINO}/12-celular-contas.png`, fullPage: true })
 
     console.log(`Telas gravadas em ${DESTINO}`)
   } finally {

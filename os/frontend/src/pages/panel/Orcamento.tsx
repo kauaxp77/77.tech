@@ -129,7 +129,7 @@ export function Orcamento() {
 
           <fieldset>
             <legend className="text-sm font-medium text-text-secondary">Adicionais</legend>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div className="mt-3 grid gap-2">
               {doGrupo('EXTRA').map((item) => (
                 <label
                   key={item.id}
@@ -142,8 +142,10 @@ export function Orcamento() {
                     onChange={() => alternarExtra(item.id)}
                     className="size-4 accent-[var(--color-primary)]"
                   />
-                  <span className="min-w-0 flex-1 truncate text-foreground">{item.name}</span>
-                  <span className="text-xs text-text-tertiary">
+                  {/* Sem truncar: nome cortado ("Hospedagem (1 a…") obriga a adivinhar
+                      o que se está comprando. Melhor a linha crescer. */}
+                  <span className="min-w-0 flex-1 text-foreground">{item.name}</span>
+                  <span className="shrink-0 text-xs text-text-tertiary">
                     R$ {reaisDeCentavos(item.priceCents)}
                   </span>
                 </label>

@@ -65,9 +65,30 @@ Bloquear e desbloquear perguntam antes, dizendo o que vai acontecer.
 
 Só dono e administrador veem esta tela.
 
+### Tabela de preços (`/painel/precos`)
+
+![Tabela de preços](../telas/06-tabela-de-precos.png)
+
+O que cada coisa custa e quanto tempo leva. **Editável por você, a qualquer momento**,
+sem depender de ninguém. Antes disto o preço vivia em quatro lugares diferentes do
+código, e os quatro discordavam.
+
+Item que sai de uso é arquivado, não apagado: uma proposta antiga precisa continuar
+mostrando o que foi cobrado.
+
+### Montar orçamento (`/painel/orcamento`)
+
+![Montar orçamento](../telas/07-montar-orcamento.png)
+
+Escolhe os itens e vê o valor e o prazo na hora. O multiplicador vira uma linha
+separada — "Taxa" — para o cliente ver de onde veio o número, em vez de receber um
+total sem explicação.
+
+Item escrito na hora entra na conta sem ir para a tabela.
+
 ### Minha conta (`/painel/conta`)
 
-![Minha conta](../telas/06-minha-conta.png)
+![Minha conta](../telas/08-minha-conta.png)
 
 Trocar a senha pede a senha atual, mesmo com a sessão aberta: sessão aberta prova que a
 pessoa entrou algum dia, não que é ela no teclado agora. Trocar a senha derruba todos os
@@ -77,12 +98,12 @@ aparelhos — a tela avisa antes.
 
 | Porta de entrada | Painel | Menu aberto |
 |---|---|---|
-| ![Celular: porta de entrada](../telas/07-celular-porta-de-entrada.png) | ![Celular: painel](../telas/08-celular-painel.png) | ![Celular: menu](../telas/09-celular-menu.png) |
+| ![Celular: porta de entrada](../telas/09-celular-porta-de-entrada.png) | ![Celular: painel](../telas/10-celular-painel.png) | ![Celular: menu](../telas/11-celular-menu.png) |
 
 O menu lateral vira barra de topo com ☰. Nenhuma tela passa da largura do celular — isso
 é medido por teste, não conferido no olho.
 
-![Celular: contas de acesso](../telas/10-celular-contas.png)
+![Celular: contas de acesso](../telas/12-celular-contas.png)
 
 ---
 
@@ -131,8 +152,8 @@ Não é "deve funcionar". São **309 testes**, todos rodando em containers:
 
 | O quê | Quantos | O que cobrem |
 |---|---:|---|
-| Backend | 236 | Banco, segurança, separação entre organizações, e-mail, trilha |
-| Frontend | 67 | Telas, cliente HTTP, guardas de rota |
+| Backend | 273 | Banco, segurança, separação entre organizações, e-mail, trilha |
+| Frontend | 104 | Telas, cliente HTTP, guardas de rota |
 | Ponta a ponta | 6 | O caminho inteiro, com banco e e-mail de verdade |
 
 O teste de ponta a ponta faz o que uma pessoa faria: o dono entra, convida um cliente,
@@ -183,7 +204,7 @@ a sua máquina.
 ## O que esta etapa NÃO faz
 
 - Números e gráficos no painel (etapa 6)
-- Catálogo e propostas (etapa 2)
+- Propostas em PDF e cobrança (etapa 2, planos 2 e 3)
 - Clientes e assinaturas (etapa 3)
 - CRM (etapa 4)
 - Portfólio, calculadora, blog e contato — continuam no site 77xp.tech

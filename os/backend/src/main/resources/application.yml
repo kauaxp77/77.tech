@@ -31,3 +31,7 @@ management:
 xp77:
   auth:
     access-token-minutes: 15
+    refresh-token-days: 30
+    max-active-sessions: ${MAX_ACTIVE_SESSIONS:3}
+    cookie-secure: true
+    cookie-same-site: Lax

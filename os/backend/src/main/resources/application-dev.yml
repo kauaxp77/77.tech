@@ -14,5 +14,7 @@ logging:
 xp77:
   auth:
     jwt-secret: ${JWT_SECRET:desenvolvimento-local-troque-isto-em-producao-32b}
+    # http://localhost não tem HTTPS: cookie Secure não voltaria ao servidor.
+    cookie-secure: false
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}

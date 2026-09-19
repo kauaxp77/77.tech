@@ -1,0 +1,31 @@
+name: os-backend
+
+on:
+  push:
+    branches: [teste, main]
+    paths:
+      - 'os/backend/**'
+      - '.github/workflows/os-backend.yml'
+  pull_request:
+    branches: [teste, main]
+    paths:
+      - 'os/backend/**'
+      - '.github/workflows/os-backend.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: os/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: os/backend/pom.xml
+      # O Testcontainers usa o Docker que já vem no runner ubuntu-latest.
+      - name: Testes
+        run: ./mvnw -B verify

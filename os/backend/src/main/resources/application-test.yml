@@ -24,3 +24,9 @@ spring:
     # Nenhum SMTP roda nos testes; o SmtpEmailSenderMailpitTest sobe o próprio Mailpit.
     host: localhost
     port: 1025
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

@@ -1,6 +1,9 @@
 target/
 .mvn/wrapper/maven-wrapper.jar
 .env
+# O .gitignore da raiz (do site Next.js) tem ".env*", que engoliria o exemplo.
+# Ele precisa estar no repositório: o EnvExampleTest o lê, inclusive no CI.
+!.env.example
 
 ### IDEs ###
 .idea/

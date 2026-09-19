@@ -60,3 +60,11 @@ xp77:
     # Cria o dono da organização 77xp e enfileira o e-mail de primeiro acesso.
     # Vazio = não faz nada.
     owner-email: ${BOOTSTRAP_OWNER_EMAIL:}
+
+springdoc:
+  # Documentação da API desligada por padrão (em produção nunca liga). Só os perfis
+  # dev e test a ligam: no Beto_Banco o Swagger ficou público em produção.
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

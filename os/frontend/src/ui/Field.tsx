@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import type { InputHTMLAttributes } from 'react'
+import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
   label: string
@@ -41,6 +41,46 @@ export function Field({ label, error, hint, ...rest }: Props) {
           {hint}
         </p>
       ) : null}
+      {error ? (
+        <p id={errorId} role="alert" className="text-xs text-danger">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
+  label: string
+  error?: string | undefined
+  children: ReactNode
+}
+
+/** Mesma ligação rótulo/erro do Field, para quando a escolha é uma lista fechada. */
+export function SelectField({ label, error, children, ...rest }: SelectProps) {
+  const id = useId()
+  const errorId = `${id}-erro`
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="text-sm font-medium text-text-secondary">
+        {label}
+      </label>
+      <select
+        {...rest}
+        id={id}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        className={`h-11 rounded-xl border bg-white/4 px-3 text-sm text-foreground
+          transition-colors
+          ${
+            error
+              ? 'border-danger/60 focus:border-danger'
+              : 'border-white/8 hover:border-white/15 focus:border-primary'
+          }`}
+      >
+        {children}
+      </select>
       {error ? (
         <p id={errorId} role="alert" className="text-xs text-danger">
           {error}

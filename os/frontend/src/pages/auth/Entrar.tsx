@@ -43,7 +43,15 @@ export function Entrar() {
   }
 
   return (
-    <AuthCard title="Entrar" subtitle="Acesse o painel da 77xp.">
+    <AuthCard
+      title="Entrar"
+      subtitle="Acesse o painel da 77xp para acompanhar seus projetos."
+      footer={
+        <Link to="/esqueci-a-senha" className="text-text-secondary hover:text-foreground">
+          Esqueci minha senha
+        </Link>
+      }
+    >
       <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
         <Field
           label="E-mail"
@@ -66,16 +74,10 @@ export function Entrar() {
             {error}
           </p>
         ) : null}
-        <Button type="submit" loading={sending}>
+        <Button type="submit" size="lg" loading={sending} className="mt-2 w-full">
           Entrar
         </Button>
       </form>
-      <Link
-        to="/esqueci-a-senha"
-        className="mt-4 block text-center text-sm text-text-secondary hover:text-foreground"
-      >
-        Esqueci minha senha
-      </Link>
     </AuthCard>
   )
 }

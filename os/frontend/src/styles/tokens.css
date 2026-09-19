@@ -14,6 +14,10 @@
   --color-success: #4ADE80;
   --color-warning: #FBBF24;
   --font-sans: Poppins, ui-sans-serif, system-ui, sans-serif;
+
+  /* O brilho roxo que a landing usa em botão e cartão. */
+  --shadow-glow: 0 0 20px rgba(124, 77, 255, 0.35);
+  --shadow-glow-soft: 0 0 30px rgba(124, 77, 255, 0.12);
 }
 
 body {
@@ -36,10 +40,53 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Foco sempre visível: estas telas precisam funcionar no teclado. */
+/* Grade de fundo da landing: linhas de 1px a cada 24px, apagando nas bordas. */
+@utility grid-backdrop {
+  background-image:
+    linear-gradient(to right, #80808012 1px, transparent 1px),
+    linear-gradient(to bottom, #80808012 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%);
+}
+
+/* Título com o gradiente roxo da landing. */
+@utility text-gradient {
+  background-image: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+  background-clip: text;
+  color: transparent;
+}
+
 @layer base {
+  /* Foco sempre visível: estas telas precisam funcionar no teclado. */
   :focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
+  }
+}
+
+/* Entrada suave, sem depender de biblioteca de animação. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility animate-rise {
+  animation: rise 0.5s ease-out both;
+}
+
+/* Quem pediu menos movimento no sistema não vê animação nenhuma. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

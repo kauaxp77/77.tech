@@ -19,8 +19,8 @@ export function Field({ label, error, hint, ...rest }: Props) {
   const describedBy = [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(' ')
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-foreground">
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="text-sm font-medium text-text-secondary">
         {label}
       </label>
       <input
@@ -28,9 +28,13 @@ export function Field({ label, error, hint, ...rest }: Props) {
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy || undefined}
-        className={`rounded-lg border bg-white/5 px-3 py-2.5 text-sm text-foreground
-          placeholder:text-text-tertiary
-          ${error ? 'border-danger' : 'border-white/10 focus:border-primary'}`}
+        className={`h-11 rounded-xl border bg-white/4 px-4 text-sm text-foreground
+          transition-colors placeholder:text-text-tertiary
+          ${
+            error
+              ? 'border-danger/60 focus:border-danger'
+              : 'border-white/8 hover:border-white/15 focus:border-primary'
+          }`}
       />
       {hint ? (
         <p id={hintId} className="text-xs text-text-tertiary">

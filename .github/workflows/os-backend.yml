@@ -5,11 +5,13 @@ on:
     branches: [teste, main]
     paths:
       - 'os/backend/**'
+      - 'os/render.yaml'
       - '.github/workflows/os-backend.yml'
   pull_request:
     branches: [teste, main]
     paths:
       - 'os/backend/**'
+      - 'os/render.yaml'
       - '.github/workflows/os-backend.yml'
 
 jobs:
@@ -29,3 +31,21 @@ jobs:
       # O Testcontainers usa o Docker que já vem no runner ubuntu-latest.
       - name: Testes
         run: ./mvnw -B verify
+      # A imagem é construída aqui, e não só na hora do deploy: Dockerfile quebrado
+      # descoberto pelo Render é tarde, e derruba a publicação em vez de o CI.
+      # Os testes não rodam dentro do build da imagem (Testcontainers precisa de um
+      # Docker, e não há Docker dentro de um `docker build`) — eles rodaram no passo
+      # acima, e o deploy só sai de branch verde.
+      - name: Imagem Docker
+        run: docker build -t xp77-os-api:ci .
+      - name: A imagem roda sem privilégios
+        run: |
+          usuario=$(docker run --rm --entrypoint sh xp77-os-api:ci -c 'id -un')
+          echo "usuário da imagem: $usuario"
+          test "$usuario" != "root"
+      - name: A imagem não carrega código-fonte nem .env
+        run: |
+          vazamentos=$(docker run --rm --entrypoint sh xp77-os-api:ci -c \
+            'find / \( -name "*.java" -o -name ".env" \) -not -path "/proc/*" 2>/dev/null | head -5')
+          echo "encontrado: [$vazamentos]"
+          test -z "$vazamentos"

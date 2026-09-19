@@ -1,0 +1,101 @@
+# Serviços do 77xp OS no Render.
+#
+# Segredo NENHUM tem valor aqui: todos são `sync: false`, o que faz o Render pedir o
+# valor no painel e nunca guardá-lo no repositório. Quem digita chave é o dono.
+# O RenderYamlTest falha se qualquer variável da lista de segredos ganhar um valor.
+#
+# Plano Starter, não o grátis: o grátis dorme depois de 15 minutos parado e bloqueia
+# as portas de SMTP. Sem SMTP não há convite nem recuperação de senha.
+
+services:
+  - type: web
+    name: 77xp-os-api
+    runtime: docker
+    plan: starter
+    region: oregon
+    branch: main
+    rootDir: os/backend
+    dockerfilePath: ./Dockerfile
+    # O Render só manda tráfego depois que isto responde: durante a subida, quem
+    # atende continua sendo a instância antiga.
+    healthCheckPath: /api/v1/actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USER
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: FLYWAY_USER
+        sync: false
+      - key: FLYWAY_PASSWORD
+        sync: false
+      - key: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: MAX_ACTIVE_SESSIONS
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: BOOTSTRAP_OWNER_EMAIL
+        sync: false
+
+  - type: web
+    name: 77xp-os-api-teste
+    runtime: docker
+    plan: starter
+    region: oregon
+    branch: teste
+    rootDir: os/backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/v1/actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USER
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: FLYWAY_USER
+        sync: false
+      - key: FLYWAY_PASSWORD
+        sync: false
+      - key: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: MAX_ACTIVE_SESSIONS
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: BOOTSTRAP_OWNER_EMAIL
+        sync: false

@@ -5,7 +5,31 @@ spring:
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
     hikari:
-      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:5}
+      # Tamanho do pool: a conta, não o chute.
+      #
+      # A maioria das requisições usa UMA conexão. Mas alguns caminhos gravam auditoria
+      # de dentro de uma transação, e a auditoria abre transação própria (REQUIRES_NEW):
+      # nesses, uma thread segura DUAS conexões ao mesmo tempo. Ver TransactionNestingTest,
+      # que lista quais são e falha se aparecer um novo.
+      #
+      # A fórmula do Hikari para não travar é: pool >= threads × (conexões por thread - 1) + 1.
+      # Com 2 conexões por thread, seria pool >= threads + 1 — impossível com 120 threads.
+      # Então o que limita de verdade é quantas requisições DESSES caminhos podem chegar
+      # juntas. Hoje são só os de senha (redefinir e primeiro acesso). Com pool 10, seriam
+      # necessárias 10 dessas requisições no mesmo instante para travar — e mesmo aí o
+      # travamento se desfaz sozinho no connection-timeout, não fica preso para sempre.
+      # Os dois caminhos são raros: redefinir senha, e detectar reuso de token (que é
+      # incidente de segurança, não uso normal).
+      #
+      # Limite do lado do Supabase: 2 instâncias convivem durante um deploy, então o
+      # consumo máximo é 2 × 10 = 20 conexões. Confortável no pooler.
+      #
+      # A cura definitiva é a auditoria não pedir conexão de dentro de transação alheia.
+      # Está registrada como dívida no relatório técnico; esta configuração é mitigação.
+      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:10}
+      # Se faltar conexão, falhar em 10s em vez dos 30s padrão: erro rápido é melhor do
+      # que a tela do cliente parada meio minuto.
+      connection-timeout: 10000
   flyway:
     user: ${FLYWAY_USER}
     password: ${FLYWAY_PASSWORD}

@@ -1,0 +1,9 @@
+# Fora da imagem: nada disto precisa entrar, e o .env nunca pode.
+target/
+.git/
+.gitignore
+.env
+.env.*
+*.md
+Dockerfile
+.dockerignore

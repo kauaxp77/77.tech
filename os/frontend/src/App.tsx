@@ -1,12 +1,20 @@
-/** Esqueleto. As rotas de verdade entram na Tarefa 4 (router.tsx). */
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
+import { AuthProvider } from './app/AuthProvider'
+import { QueryProvider } from './app/QueryProvider'
+import { Entrar } from './pages/auth/Entrar'
+
 export function App() {
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-3 p-6 text-center">
-      <p className="text-sm tracking-widest text-text-tertiary uppercase">77xp OS</p>
-      <h1 className="text-3xl font-semibold">As telas estão sendo montadas</h1>
-      <p className="max-w-md text-text-secondary">
-        O motor (a API) já está pronto. Daqui a pouco esta página vira o site.
-      </p>
-    </main>
+    <QueryProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/entrar" element={<Entrar />} />
+            {/* As demais rotas chegam nas próximas tarefas do plano 2. */}
+            <Route path="*" element={<Navigate to="/entrar" replace />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryProvider>
   )
 }

@@ -26,9 +26,11 @@ function createAccessToken() {
       value = token
     },
     /** Avisa quem precisa reagir à sessão perdida (o AuthProvider manda para /entrar). */
-    onLost: (listener: Listener) => {
+    onLost: (listener: Listener): (() => void) => {
       lostListeners.add(listener)
-      return () => lostListeners.delete(listener)
+      return () => {
+        lostListeners.delete(listener)
+      }
     },
     lose: () => {
       value = null

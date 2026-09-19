@@ -15,6 +15,9 @@ xp77:
     base-url: http://localhost:5173
   scheduling:
     enabled: false
+  rate-limit:
+    # Alto: as suítes fazem dezenas de logins do mesmo endereço. O RateLimitFilterTest baixa para 5.
+    per-minute: 1000
 
 spring:
   mail:

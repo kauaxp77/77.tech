@@ -47,6 +47,8 @@ xp77:
     # é o endereço que o último proxy confiável registrou no X-Forwarded-For.
     # Conferir no plano 3 o que o Render garante e ajustar aqui se preciso.
     trusted-proxy-hops: 1
+    # Tentativas por minuto e por IP em login, esqueci-a-senha, redefinição e primeiro acesso.
+    per-minute: 30
   email:
     dispatch-interval-ms: 15000
     batch-size: 20

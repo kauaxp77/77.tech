@@ -10,3 +10,9 @@ spring:
 logging:
   level:
     com.xp77.os: DEBUG
+
+xp77:
+  auth:
+    jwt-secret: ${JWT_SECRET:desenvolvimento-local-troque-isto-em-producao-32b}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}

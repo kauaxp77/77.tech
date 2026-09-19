@@ -27,3 +27,7 @@ management:
     health:
       probes:
         enabled: true
+
+xp77:
+  auth:
+    access-token-minutes: 15

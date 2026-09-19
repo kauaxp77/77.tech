@@ -43,8 +43,17 @@ describe('App', () => {
     window.history.pushState({}, '', '/')
   })
 
-  it('sobe e leva quem não tem sessão para a tela de entrar', async () => {
+  it('a raiz é a porta de entrada pública, não o login', async () => {
     restore.mockResolvedValue(null)
+
+    render(<App />)
+
+    expect(await screen.findByRole('link', { name: 'Entrar' })).toHaveAttribute('href', '/entrar')
+  })
+
+  it('sem sessão, uma tela de dentro leva ao login', async () => {
+    restore.mockResolvedValue(null)
+    window.history.pushState({}, '', '/painel')
 
     render(<App />)
 

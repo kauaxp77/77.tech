@@ -12,6 +12,7 @@ import { RedefinirSenha } from './pages/auth/RedefinirSenha'
 import { Conta } from './pages/account/Conta'
 import { ContasDeAcesso } from './pages/panel/ContasDeAcesso'
 import { Inicio } from './pages/portal/Inicio'
+import { Home } from './pages/public/Home'
 import { VisaoGeral } from './pages/panel/VisaoGeral'
 
 /** Quem mexe em contas de acesso: a API só deixa estes dois em /admin/users. */
@@ -74,6 +75,7 @@ export function App() {
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            <Route path="/" element={<Home />} />
             <Route path="/entrar" element={<Entrar />} />
             <Route path="/primeiro-acesso" element={<PrimeiroAcesso />} />
             <Route path="/redefinir-senha" element={<RedefinirSenha />} />
@@ -94,7 +96,6 @@ export function App() {
               <Route index element={<Inicio />} />
               <Route path="conta" element={<Conta />} />
             </Route>
-            {/* A página inicial pública chega na próxima tarefa. */}
             <Route path="*" element={<Navigate to="/entrar" replace />} />
           </Routes>
         </AuthProvider>

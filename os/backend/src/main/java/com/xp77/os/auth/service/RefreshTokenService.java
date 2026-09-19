@@ -1,5 +1,6 @@
 package com.xp77.os.auth.service;
 
+import com.xp77.os.audit.api.AuditLogger;
 import com.xp77.os.auth.entity.RefreshToken;
 import com.xp77.os.auth.repository.RefreshTokenRepository;
 import com.xp77.os.users.api.UserAccount;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,15 +33,18 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository tokens;
     private final UserDirectory users;
+    private final AuditLogger audit;
     private final Duration lifetime;
     private final int maxActiveSessions;
 
     public RefreshTokenService(RefreshTokenRepository tokens,
                                UserDirectory users,
+                               AuditLogger audit,
                                @Value("${xp77.auth.refresh-token-days}") long days,
                                @Value("${xp77.auth.max-active-sessions}") int maxActiveSessions) {
         this.tokens = tokens;
         this.users = users;
+        this.audit = audit;
         this.lifetime = Duration.ofDays(days);
         this.maxActiveSessions = maxActiveSessions;
     }
@@ -77,6 +82,8 @@ public class RefreshTokenService {
             log.warn("Reuso de refresh token detectado para o usuário {}; todas as sessões foram revogadas",
                     current.getUserId());
             tokens.revokeAllActive(current.getUserId(), Instant.now());
+            audit.recordResult(current.getUserId(), AuditLogger.Actions.SESSION_REUSE_DETECTED, "User",
+                    current.getUserId().toString(), Map.of("family", current.getFamilyId().toString()), false);
             return Optional.empty();
         }
         if (!current.isActive()) {

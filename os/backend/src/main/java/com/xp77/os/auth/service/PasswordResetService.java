@@ -1,5 +1,6 @@
 package com.xp77.os.auth.service;
 
+import com.xp77.os.audit.api.AuditLogger;
 import com.xp77.os.auth.api.FirstAccessTokens;
 import com.xp77.os.auth.entity.PasswordResetToken;
 import com.xp77.os.auth.entity.TokenPurpose;
@@ -27,6 +28,7 @@ public class PasswordResetService implements FirstAccessTokens {
     private final UserDirectory users;
     private final RefreshTokenService sessions;
     private final EmailService emails;
+    private final AuditLogger audit;
     private final long firstAccessHours;
     private final long resetHours;
 
@@ -34,12 +36,14 @@ public class PasswordResetService implements FirstAccessTokens {
                                 UserDirectory users,
                                 RefreshTokenService sessions,
                                 EmailService emails,
+                                AuditLogger audit,
                                 @Value("${xp77.auth.first-access-token-hours}") long firstAccessHours,
                                 @Value("${xp77.auth.reset-token-hours}") long resetHours) {
         this.tokens = tokens;
         this.users = users;
         this.sessions = sessions;
         this.emails = emails;
+        this.audit = audit;
         this.firstAccessHours = firstAccessHours;
         this.resetHours = resetHours;
     }
@@ -78,6 +82,9 @@ public class PasswordResetService implements FirstAccessTokens {
         token.markUsed();
         tokens.saveAndFlush(token);
         sessions.revokeAll(token.getUserId());
+        audit.recordWithActor(token.getUserId(), AuditLogger.Actions.PASSWORD_RESET, "User",
+                token.getUserId().toString(),
+                Map.of("via", purpose == TokenPurpose.FIRST_ACCESS ? "primeiro acesso" : "esqueci minha senha"));
     }
 
     private String create(UUID userId, TokenPurpose purpose, long hours) {

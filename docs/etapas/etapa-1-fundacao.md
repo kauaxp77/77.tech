@@ -65,27 +65,6 @@ Bloquear e desbloquear perguntam antes, dizendo o que vai acontecer.
 
 Só dono e administrador veem esta tela.
 
-### Tabela de preços (`/painel/precos`)
-
-![Tabela de preços](../telas/06-tabela-de-precos.png)
-
-O que cada coisa custa e quanto tempo leva. **Editável por você, a qualquer momento**,
-sem depender de ninguém. Antes disto o preço vivia em quatro lugares diferentes do
-código, e os quatro discordavam.
-
-Item que sai de uso é arquivado, não apagado: uma proposta antiga precisa continuar
-mostrando o que foi cobrado.
-
-### Montar orçamento (`/painel/orcamento`)
-
-![Montar orçamento](../telas/07-montar-orcamento.png)
-
-Escolhe os itens e vê o valor e o prazo na hora. O multiplicador vira uma linha
-separada — "Taxa" — para o cliente ver de onde veio o número, em vez de receber um
-total sem explicação.
-
-Item escrito na hora entra na conta sem ir para a tabela.
-
 ### Minha conta (`/painel/conta`)
 
 ![Minha conta](../telas/08-minha-conta.png)
@@ -148,11 +127,11 @@ trilha que só aceita inserção — não dá para editar nem apagar o que já f
 
 ## Como saber que funciona
 
-Não é "deve funcionar". São **309 testes**, todos rodando em containers:
+Não é "deve funcionar". São **383 testes**, todos rodando em containers:
 
 | O quê | Quantos | O que cobrem |
 |---|---:|---|
-| Backend | 273 | Banco, segurança, separação entre organizações, e-mail, trilha |
+| Backend | 273 | Banco, segurança, separação entre organizações, e-mail, trilha, preços |
 | Frontend | 104 | Telas, cliente HTTP, guardas de rota |
 | Ponta a ponta | 6 | O caminho inteiro, com banco e e-mail de verdade |
 
@@ -191,7 +170,7 @@ foram tiradas à mão: existe um script que refaz todas.
 ```bash
 cd os/frontend
 node scripts/dados-de-exemplo.mjs   # cria Ana, Bruno, Carla e Diego (só local)
-node scripts/capturar-telas.mjs     # refaz as 10 imagens em docs/telas/
+node scripts/capturar-telas.mjs     # refaz as 12 imagens em docs/telas/
 ```
 
 As pessoas das fotos são invenção para a documentação, e nascem pelo caminho de verdade
@@ -204,8 +183,9 @@ a sua máquina.
 ## O que esta etapa NÃO faz
 
 - Números e gráficos no painel (etapa 6)
-- Propostas em PDF e cobrança (etapa 2, planos 2 e 3)
+- Propostas em PDF e cobrança (etapa 2, planos 2 e 3). A tabela de preços já existe:
+  ver `etapa-2-precos.md`
 - Clientes e assinaturas (etapa 3)
 - CRM (etapa 4)
 - Portfólio, calculadora, blog e contato — continuam no site 77xp.tech
-- Publicação (Render, Vercel, subdomínio): é o plano 3, ainda não escrito
+- Publicação (Render, Vercel, subdomínio): plano 3, escrito, tarefas 1 a 5 feitas
